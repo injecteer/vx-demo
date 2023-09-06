@@ -1,8 +1,22 @@
-# Ignore Gradle project-specific cache directory
+Thumbs.db
+.DS_Store
 .gradle
-
-# Ignore Gradle build output directory
-build
-.settings/
-*.classpath
-*.project
+gradle
+gradlew
+gradlew.bat
+build/
+.idea
+*.iml
+*.ipr
+*.iws
+.project
+.settings
+.classpath
+bin/
+.vertx/
+.groovy/
+*~
+src/main/resources/version.txt
+!/ci/
+!/ci/bin/
+.m2
