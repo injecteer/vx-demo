@@ -1,0 +1,27 @@
+plugins {
+  id 'groovy'
+}
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+  implementation "org.codehaus.groovy:groovy-all:$groovyVersion"
+  implementation "org.codehaus.groovy:groovy-yaml:$groovyVersion"
+
+  implementation "io.vertx:vertx-core:$vertxVersion"
+  implementation "io.vertx:vertx-web:$vertxVersion"
+  implementation "io.vertx:vertx-hazelcast:$vertxVersion"
+  
+  implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
+
+  implementation 'ch.qos.logback:logback-classic:1.4.11'
+  implementation 'org.slf4j:log4j-over-slf4j:2.0.9'
+
+  testImplementation 'org.junit.jupiter:junit-jupiter:5.9.1'
+}
+
+test {
+  useJUnitPlatform()
+}

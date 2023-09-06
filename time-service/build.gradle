@@ -1,0 +1,8 @@
+plugins {
+  id 'vx.demo.groovy-application-conventions'
+}
+
+run {
+  mainClassName = 'io.vertx.core.Launcher'
+  args 'run', verticleName, '-cluster', '-instances', 4
+}

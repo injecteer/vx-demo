@@ -1,0 +1,8 @@
+plugins {
+  id 'vx.demo.groovy-application-conventions'
+}
+
+dependencies {
+  implementation project( ':app' )
+  implementation project( ':time-service' )
+}
