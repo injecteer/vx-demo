@@ -16,6 +16,7 @@ import io.vertx.ext.web.handler.FaviconHandler
 import io.vertx.ext.web.handler.ResponseContentTypeHandler
 import io.vertx.ext.web.handler.StaticHandler
 import vx.demo.web.Controller
+import vx.demo.web.HealthCheckOnly
 import vx.demo.web.WebVerticle
 
 @TypeChecked
@@ -27,29 +28,23 @@ class DemoVerticle extends WebVerticle implements Controller {
   void start( Promise startPromise ) throws Exception {
     start()
     
-    Router router = Router.router vertx
-    
     router.route().handler BodyHandler.create()
     router.route().handler ResponseContentTypeHandler.create()
     router.route().handler FaviconHandler.create( vertx )
     router.route().failureHandler ErrorHandler.create( vertx, WebEnvironment.development() )
     
-    router.route '/api/*' handler this.&traceInterceptor
+    // log and pass
+    router.route '/api/*' handler {
+      log.info "trace < ${it.request().method()}:${it.normalizedPath()}"
+      it.next()
+    }
     
     router.get '/api/time/:zone' produces JSON handler this::time
     router.get '/api/time' produces JSON handler this.&time
     
-    HealthCheckHandler hc = HealthCheckHandler.create vertx register( 'health' ){ it.complete Status.OK() }
-    router.get '/health' handler hc
-    
     router.get '/*' handler StaticHandler.create().setCachingEnabled( false ).setDefaultContentEncoding( 'UTF-8' )
 
     vertx.createHttpServer().requestHandler router listen HTTP, startPromise
-  }
-  
-  void traceInterceptor( RoutingContext rc ) {
-    log.info "trace < ${rc.request().method()}:${rc.normalizedPath()}"
-    rc.next()
   }
   
   void time( RoutingContext rc ) {

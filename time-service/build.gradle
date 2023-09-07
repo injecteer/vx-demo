@@ -4,5 +4,5 @@ plugins {
 
 run {
   mainClassName = 'io.vertx.core.Launcher'
-  args 'run', verticleName, '-cluster', '-instances', 4
+  args 'run', verticleName, '-cluster', '-instances', 2
 }

@@ -12,12 +12,11 @@ import io.vertx.core.Promise;
 import io.vertx.core.eventbus.Message;
 import io.vertx.ext.healthchecks.HealthCheckHandler;
 import io.vertx.ext.healthchecks.Status;
-import io.vertx.ext.web.Router;
+import vx.demo.web.HealthCheckOnly;
 import vx.demo.web.WebVerticle;
 
+@HealthCheckOnly( 8092 )
 public class TimeVerticle extends WebVerticle implements Handler<Message<String>> {
-
-  private final int HEALTH = 8092;
 
   private final String FORMAT = "dd.MM.yyy EEE HH:mm";
   
@@ -26,16 +25,18 @@ public class TimeVerticle extends WebVerticle implements Handler<Message<String>
   private final List<String> IDS = List.of( TimeZone.getAvailableIDs() );
 
   @Override
-  @SuppressWarnings({ "unchecked", "rawtypes" })
-  public void start( Promise startPromise ) throws Exception {
+  public void start( Promise<Void> startPromise ) throws Exception {
     start();
     
     vertx.eventBus().consumer( "time", this );
     
-    Router router = Router.router( vertx );
+    startPromise.complete();
+  }
+  
+  @Override
+  public void healthChecks() {
     HealthCheckHandler hc = HealthCheckHandler.create( vertx ).register( "health", p -> p.complete( Status.OK( mapFrom( stats ) ) ) );
     router.get( "/health" ).handler( hc );
-    vertx.createHttpServer().requestHandler( router ).listen( HEALTH, startPromise );
   }
   
   @Override

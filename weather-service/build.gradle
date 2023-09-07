@@ -1,0 +1,7 @@
+plugins {
+  id 'vx.demo.groovy-application-conventions'
+}
+
+dependencies {
+  implementation "io.vertx:vertx-web-client:$vertxVersion"
+}

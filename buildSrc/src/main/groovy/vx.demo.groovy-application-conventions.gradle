@@ -6,7 +6,6 @@ plugins {
 
 dependencies {
   implementation project( ':list' )
-  implementation "io.vertx:vertx-health-check:$vertxVersion"
 }
 
 shadowJar {
@@ -18,7 +17,8 @@ shadowJar {
   }
 }
 
-applicationDefaultJvmArgs = [ 
+applicationDefaultJvmArgs = [
+  '-Dvertxweb.environment=dev', 
   '-Djava.net.preferIPv4Stack=true', 
   '-Dfile.encoding=UTF-8',
   // hazelcast args for Java 9+

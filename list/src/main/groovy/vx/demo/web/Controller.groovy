@@ -1,11 +1,8 @@
 package vx.demo.web
 
-import groovy.transform.TypeChecked
-import io.vertx.core.http.HttpServerResponse
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.RoutingContext
 
-@TypeChecked
 trait Controller {
   
   static final String JSON = 'application/json'
@@ -28,25 +25,23 @@ trait Controller {
       rc.json null
       return
     }
-    JsonObject jo
-    switch( o ) {
-    case Enum:
-      jo = [ body:((Enum)o).name() ] as JsonObject
-      break
-    case Number:
-    case String:
-      jo = [ body:o ] as JsonObject
-      break
-    case Throwable:
-      jo = [ error:((Throwable)o).message ] as JsonObject
-      break
-    case JsonObject:
-      jo = (JsonObject)o
-      break
-    default:
-      jo = JsonObject.mapFrom o
+    switch( o ){
+      case Enum:
+        o = [ body:o.name() ]
+        break
+      case Number:
+      case String:
+        o = [ body:o ]
+        break
+      case Throwable:
+        o = [ error:o.message ]
+        break
+      case JsonObject:
+        break
+      default:
+        o = JsonObject.mapFrom o
     }
-    rc.json jo
+    rc.json o as JsonObject
   }
 
 }

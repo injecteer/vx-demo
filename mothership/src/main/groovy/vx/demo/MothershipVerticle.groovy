@@ -6,9 +6,11 @@ import io.vertx.core.AbstractVerticle
 import io.vertx.core.DeploymentOptions
 import io.vertx.core.Future
 import io.vertx.core.Promise
+import vx.demo.web.HealthCheckOnly
 import vx.demo.web.WebVerticle
 
 @TypeChecked
+@HealthCheckOnly( 8099 )
 class MothershipVerticle extends WebVerticle {
 
   @Override
@@ -16,8 +18,9 @@ class MothershipVerticle extends WebVerticle {
     start()
     
     List<Future> futs = [ 
-      (TimeVerticle):[ instances:2, config:[ nonStandalone:true ] ], 
-      (DemoVerticle):[ config:[ nonStandalone:true ] ] 
+      (TimeVerticle):[ instances:2, config:[ nonStandalone:true ] ],
+      (WeatherVerticle):[ worker:true, config:[ nonStandalone:true ] ],
+      (DemoVerticle):[ config:[ nonStandalone:true ] ],
     ].collect ( clazz, opts ) -> vertx.deployVerticle clazz, opts as DeploymentOptions
     
     Future.all futs onComplete{ 
