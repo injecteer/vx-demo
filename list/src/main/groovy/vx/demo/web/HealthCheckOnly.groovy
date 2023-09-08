@@ -6,7 +6,8 @@ import java.lang.annotation.RetentionPolicy
 import java.lang.annotation.Target
 
 /**
- * Specifies that the verticle has no http endpoints, but healthcheck
+ * Specifies that the verticle has no http endpoints, but healthcheck.
+ * When set, an HTTP-server with <code>/health</code> endpoint will be started, if verticle runs in stand-alone mode.
  */
 @Retention( RetentionPolicy.RUNTIME )
 @Target( [ ElementType.TYPE ] )

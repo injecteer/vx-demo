@@ -7,7 +7,7 @@ trait Controller {
   
   static final String JSON = 'application/json'
   
-  void ok( RoutingContext rc, o, int code = 200 ) {
+  void ok( RoutingContext rc, o = null, int code = 200 ) {
     respond rc, o, code
   }
   
@@ -22,7 +22,7 @@ trait Controller {
   void respond( RoutingContext rc, o, int code = 200 ) {
     rc.response().setStatusCode Math.max( 0, code )
     if( !o ){ 
-      rc.json null
+      rc.json ''
       return
     }
     switch( o ){

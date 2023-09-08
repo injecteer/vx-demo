@@ -1,1 +1,1 @@
-include 'app', 'time-service', 'weather-service', 'list', 'mothership'
+include 'list', 'app', 'time-service', 'weather-service', 'mothership'

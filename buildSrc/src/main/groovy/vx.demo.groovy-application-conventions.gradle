@@ -8,7 +8,16 @@ dependencies {
   implementation project( ':list' )
 }
 
+jar {
+  manifest {
+    attributes 'Main-Class':'io.vertx.core.Starter'
+    attributes 'Main-Verticle':verticleName
+  }
+}
+
 shadowJar {
+  duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+  
   manifest {
     attributes 'Main-Verticle':verticleName
   }
@@ -33,5 +42,5 @@ applicationDefaultJvmArgs = [
 
 run {
   mainClassName = 'io.vertx.core.Launcher'
-  args 'run', verticleName, '-cluster'
+  args 'run', verticleName//, '-cluster'
 }

@@ -5,9 +5,11 @@ import io.vertx.core.Promise
 import io.vertx.core.eventbus.Message
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.client.WebClient
+import vx.demo.web.HealthCheckOnly
 import vx.demo.web.WebVerticle
 
 @TypeChecked
+@HealthCheckOnly( 8093 )
 class WeatherVerticle extends WebVerticle {
 
   final int HEALTH = 8093
@@ -17,23 +19,22 @@ class WeatherVerticle extends WebVerticle {
   WebClient http
 
   @Override
-  void start( Promise<Void> startPromise ) throws Exception {
-    start()
+  void start() throws Exception {
+    super.start()
 
     http = WebClient.create vertx
-
+    
     vertx.eventBus().consumer( 'weather' ){ Message<JsonObject> msg ->
-      http.get( 'https://api.openweathermap.org/data/2.5/weather' )
+      log.info "<< ${msg.body()}"
+      http.getAbs( 'https://api.openweathermap.org/data/2.5/weather' )
         .addQueryParam( 'appid', APPID )
         .addQueryParam( 'q', msg.body().getString( 'city' ) )
         .send{
           if( it.succeeded() )
-            msg.reply it.result().body()
+            msg.reply it.result().bodyAsJsonObject()
           else
             msg.fail 400, it.cause().message
         }
     }
-
-    startPromise.complete()
   }
 }
