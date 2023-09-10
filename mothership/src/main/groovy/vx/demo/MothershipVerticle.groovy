@@ -49,7 +49,6 @@ class MothershipVerticle extends WebVerticle {
         List<Map> data = futs.findResults{ it.succeeded() ? it.result().body().map : null }
         List checks = data*.checks.flatten()
         String status = 'UP' == data*.status.unique().first() ? 'OK' : 'KO'
-        log.info "$status => $checks"
         prom.complete Status."$status"( mapFrom( [ checks:checks ] ) )
       }
     } as Handler<Promise<Status>> ]

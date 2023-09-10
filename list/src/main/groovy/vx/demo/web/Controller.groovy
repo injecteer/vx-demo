@@ -3,6 +3,9 @@ package vx.demo.web
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.RoutingContext
 
+/**
+ * Contains convenience methods for response rendering
+ */
 trait Controller {
   
   static final String JSON = 'application/json'
