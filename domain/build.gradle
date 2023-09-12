@@ -1,0 +1,8 @@
+plugins {
+  id 'vx.demo.groovy-library-conventions'
+}
+
+dependencies {
+  api 'org.grails:grails-datastore-gorm-hibernate5:8.0.0'
+  api 'com.h2database:h2:2.2.222'
+}

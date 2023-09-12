@@ -7,6 +7,7 @@ import org.apache.log4j.Logger
 import com.fasterxml.jackson.databind.SerializationFeature
 
 import groovy.transform.TypeChecked
+import groovy.yaml.YamlSlurper
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.Handler
 import io.vertx.core.Promise
@@ -18,10 +19,13 @@ import io.vertx.ext.healthchecks.HealthChecks
 import io.vertx.ext.healthchecks.Status
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.common.WebEnvironment
+import vx.demo.gorm.Bootstrap
 
 @TypeChecked
 class WebVerticle extends AbstractVerticle {
-
+  
+  protected Map config
+  
   protected boolean isStandalone = false
 
   protected Logger log
@@ -34,6 +38,10 @@ class WebVerticle extends AbstractVerticle {
   
   @Override
   void start() throws Exception {
+    config = (Map)new YamlSlurper().parse( getClass().getResourceAsStream( '/application.yml' ) )
+
+    Bootstrap.init( (Map)config.db )
+    
     router = Router.router vertx
     
     DatabindCodec.mapper().configure SerializationFeature.FAIL_ON_EMPTY_BEANS, false
@@ -55,8 +63,8 @@ class WebVerticle extends AbstractVerticle {
         log.info "Environment    :: ${WebEnvironment.mode()}"
       }
       
-      var hoc = getClass().getAnnotationsByType HealthCheckOnly
-      hcPort = hoc ? hoc.first().value() : 0
+      var hco = getClass().getAnnotationsByType HealthCheckOnly
+      hcPort = hco ? hco.first().value() : 0
       if( hcPort ){
         router.get '/health' handler HealthCheckHandler.createWithHealthChecks( hc )
         vertx.createHttpServer().requestHandler router listen hcPort

@@ -1,3 +1,7 @@
 plugins {
   id 'vx.demo.groovy-library-conventions'
 }
+
+dependencies {
+  api project( ':domain' )
+}

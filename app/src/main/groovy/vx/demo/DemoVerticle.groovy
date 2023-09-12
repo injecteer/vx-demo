@@ -27,6 +27,10 @@ class DemoVerticle extends WebVerticle implements Controller {
     router.route().handler BodyHandler.create()
     router.route().handler ResponseContentTypeHandler.create()
     router.route().handler FaviconHandler.create( vertx )
+    router.route().failureHandler{
+      log.error "${it.request().method()}:${it.normalizedPath()}", it.failure()
+      it.next()
+    }
     router.route().failureHandler ErrorHandler.create( vertx, WebEnvironment.development() )
     
     // log and pass
@@ -39,6 +43,8 @@ class DemoVerticle extends WebVerticle implements Controller {
     router.get '/api/time' produces JSON handler this.&time
     
     router.post '/api/weather' consumes JSON produces JSON handler{ pipe2http 'weather', it.body().asJsonObject(), it }
+
+    new LogEventController( router )    
     
     router.get '/*' handler StaticHandler.create().setCachingEnabled( false ).setDefaultContentEncoding( 'UTF-8' )
 

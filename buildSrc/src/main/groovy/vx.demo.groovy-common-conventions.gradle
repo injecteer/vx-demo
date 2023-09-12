@@ -7,7 +7,8 @@ repositories {
 }
 
 dependencies {
-  implementation "org.codehaus.groovy:groovy-all:$groovyVersion"
+  implementation "org.codehaus.groovy:groovy:$groovyVersion"
+  implementation "org.codehaus.groovy:groovy-json:$groovyVersion"
   implementation "org.codehaus.groovy:groovy-yaml:$groovyVersion"
 
   implementation "io.vertx:vertx-core:$vertxVersion"

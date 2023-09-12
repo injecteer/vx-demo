@@ -30,6 +30,11 @@ applicationDefaultJvmArgs = [
   '-Dvertxweb.environment=dev', 
   '-Djava.net.preferIPv4Stack=true', 
   '-Dfile.encoding=UTF-8',
+  '-Dhttp.proxyHost=proxy.hausbank.de',
+  '-Dhttp.proxyPort=8080',
+  '-Dhttps.proxyHost=proxy.hausbank.de',
+  '-Dhttps.proxyPort=8080',
+  '-Dhttp.nonProxyHosts="*.localdev|*.test.test|localhost"',
   // hazelcast args for Java 9+
   '--add-modules', 'java.se', 
   '--add-exports', 'java.base/jdk.internal.ref=ALL-UNNAMED', 
@@ -42,5 +47,5 @@ applicationDefaultJvmArgs = [
 
 run {
   mainClassName = 'io.vertx.core.Launcher'
-  args 'run', verticleName//, '-cluster'
+  args 'run', verticleName, '-cluster'
 }
