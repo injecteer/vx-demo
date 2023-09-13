@@ -1,34 +1,42 @@
 package vx.demo.gorm
 
+import static java.lang.reflect.Modifier.*
+
 import java.util.concurrent.atomic.AtomicBoolean
 
 import org.grails.orm.hibernate.HibernateDatastore
-import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider
-import org.springframework.core.type.filter.AnnotationTypeFilter
 
-import grails.gorm.annotation.Entity
 import groovy.transform.TypeChecked
 import groovy.util.logging.Log4j
+import vx.demo.ast.AutoGORMInitializer
 
 @Log4j
 @TypeChecked
+@AutoGORMInitializer
 class Bootstrap {
 
-  static AtomicBoolean initialized = new AtomicBoolean( false )
+  private AtomicBoolean initialized = new AtomicBoolean( false )
+  
+  private static Bootstrap me
+  
+  private Bootstrap() {}
+  
+  static Bootstrap getInstance() {
+    if( !me ) me = new Bootstrap()
+    me
+  }
   
   static synchronized void init( Map config ) {
+    getInstance().initialize config
+  }
+  
+  private void initialize( Map config ) {
     if( initialized.get() ) return
     
-    ClassPathScanningCandidateComponentProvider compProvider = new ClassPathScanningCandidateComponentProvider( false )
-    compProvider.addIncludeFilter new AnnotationTypeFilter( Entity )
+    List<Class> classes = domainClasses.collect{ Class.forName( (String)it ) }
     
-    List<Class<?>> domainClasses = config.domainPackages.inject( [] ){ List<Class<?>> res, String pckg ->
-      compProvider.findCandidateComponents( pckg ).each{ res << Class.forName( it.beanClassName ) }
-      res
-    }
-    
-    log.info "initialized ${domainClasses.size()} domain classes"
-    new HibernateDatastore( (Map)config.gorm, domainClasses as Class<?>[] )
+    new HibernateDatastore( (Map)config.gorm, classes as Class[] )
+    log.info "initialized ${classes.size()} domain classes"
     
     initialized.set true
   }

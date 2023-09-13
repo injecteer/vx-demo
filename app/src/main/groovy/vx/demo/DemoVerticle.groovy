@@ -1,5 +1,8 @@
 package vx.demo
 
+import org.springframework.context.MessageSource
+import org.springframework.context.support.ResourceBundleMessageSource
+
 import groovy.transform.TypeChecked
 import io.vertx.core.AsyncResult
 import io.vertx.core.Promise
@@ -24,6 +27,8 @@ class DemoVerticle extends WebVerticle implements Controller {
   void start( Promise startPromise ) throws Exception {
     start()
     
+    MessageSource messageSource = new ResourceBundleMessageSource( defaultEncoding:'UTF-8', basename:'i18n.messages' )
+    
     router.route().handler BodyHandler.create()
     router.route().handler ResponseContentTypeHandler.create()
     router.route().handler FaviconHandler.create( vertx )
@@ -44,7 +49,7 @@ class DemoVerticle extends WebVerticle implements Controller {
     
     router.post '/api/weather' consumes JSON produces JSON handler{ pipe2http 'weather', it.body().asJsonObject(), it }
 
-    new LogEventController( router )    
+    new LogEventController( router, messageSource )    
     
     router.get '/*' handler StaticHandler.create().setCachingEnabled( false ).setDefaultContentEncoding( 'UTF-8' )
 

@@ -1,5 +1,9 @@
 package vx.demo.web
 
+import org.grails.datastore.gorm.GormEntity
+import org.springframework.context.MessageSource
+import org.springframework.validation.FieldError
+
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.RoutingContext
 
@@ -7,6 +11,8 @@ import io.vertx.ext.web.RoutingContext
  * Contains convenience methods for response rendering
  */
 trait Controller {
+  
+  MessageSource messageSource
   
   static final String JSON = 'application/json'
   
@@ -46,5 +52,10 @@ trait Controller {
     }
     rc.json o as JsonObject
   }
-
+  
+  List errors2messages( GormEntity o ) {
+    o.errors.fieldErrors.collect{ FieldError fe ->
+      fe.codes.findResult{ String c -> messageSource?.getMessage c, fe.arguments, null, Locale.default } ?: fe.codes.last()
+    }
+  }
 }

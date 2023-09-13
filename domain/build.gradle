@@ -3,6 +3,6 @@ plugins {
 }
 
 dependencies {
-  api 'org.grails:grails-datastore-gorm-hibernate5:8.0.0'
-  api 'com.h2database:h2:2.2.222'
+  api project( ':core' )
+  api 'com.h2database:h2:1.4.200'
 }

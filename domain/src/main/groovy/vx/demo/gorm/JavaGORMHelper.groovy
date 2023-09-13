@@ -8,6 +8,9 @@ import org.springframework.transaction.TransactionStatus
 
 import groovy.util.logging.Log4j
 
+/**
+ * Simple delegation to GORM API static methods
+ */
 @Log4j
 class JavaGORMHelper {
   

@@ -3,5 +3,5 @@ plugins {
 }
 
 dependencies {
-  api project( ':domain' )
+  api 'org.grails:grails-datastore-gorm-hibernate5:8.0.0'
 }

@@ -40,7 +40,7 @@ class WebVerticle extends AbstractVerticle {
   void start() throws Exception {
     config = (Map)new YamlSlurper().parse( getClass().getResourceAsStream( '/application.yml' ) )
 
-    Bootstrap.init( (Map)config.db )
+    Bootstrap.init( (Map)config )
     
     router = Router.router vertx
     
