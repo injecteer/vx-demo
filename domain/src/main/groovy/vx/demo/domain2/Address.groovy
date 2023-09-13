@@ -1,4 +1,4 @@
-package vx.demo.domain
+package vx.demo.domain2
 
 import org.grails.datastore.gorm.GormEntity
 
@@ -8,17 +8,20 @@ import vx.demo.ast.AutoGORMInitializer
 
 @Entity
 @TupleConstructor( excludes=[ 'id' ] )
-class LogEvent implements GormEntity<LogEvent> {
+class Address implements GormEntity<Address> {
   
   long id
   
-  String what
+  String street
   
-  boolean success
+  String town
   
-  Date dateCreated
+  String plz
+  
+  User user
   
   static constraints = {
-    what inList:[ 'time', 'weather' ]
+    street blank:false
+    plz matches:/\d{5}/
   }
 }

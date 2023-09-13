@@ -1,6 +1,6 @@
 package vx.demo
 
-import org.springframework.validation.FieldError
+import org.springframework.context.MessageSource
 
 import grails.gorm.transactions.Transactional
 import io.vertx.ext.web.Router
@@ -11,7 +11,8 @@ import vx.demo.web.Controller
 @Transactional
 class LogEventController implements Controller {
 
-  LogEventController( Router router ) {
+  LogEventController( Router router, MessageSource messageSource ) {
+    this.messageSource = messageSource
     router.get '/api/logEventIds' produces JSON handler this.&ids
     router.get '/api/logEvent/:id' produces JSON handler this.&details
     router.post '/api/logEvent' consumes JSON produces JSON handler this.&create
@@ -36,7 +37,7 @@ class LogEventController implements Controller {
     if( le.save() )
       ok rc, le
     else
-      err rc, [ errors:le.errors.fieldErrors.collect{ FieldError fe -> [ field:fe.field, code:fe.codes.last(), rejectedValue:fe.rejectedValue ] } ], 400
+      err rc, [ errors:errors2messages( le ) ], 400
   }
   
   void delete( RoutingContext rc ) {

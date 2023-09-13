@@ -1,1 +1,1 @@
-include 'list', 'domain', 'app', 'time-service', 'weather-service', 'mothership'
+include 'core', 'domain', 'app', 'time-service', 'weather-service', 'mothership'

@@ -1,16 +1,13 @@
-db:
-  domainPackages:
-    - vx.demo.domain
-  gorm:
-    dataSource:
-      pooled: true
-      dbCreate: update
-      url: jdbc:h2:file:c:/db/demo-db
-      driverClassName: org.h2.Driver
-      username: sa
-      password: null
-      logSql: false
-    hibernate:
-      hbm2ddl:
-        auto: update
-      dialect: org.hibernate.dialect.H2Dialect
+gorm:
+  dataSource:
+    pooled: true
+    dbCreate: update
+    url: jdbc:h2:file:c:/db/demo-db
+    driverClassName: org.h2.Driver
+    username: sa
+    password: null
+    logSql: false
+  hibernate:
+    hbm2ddl:
+      auto: update
+    dialect: org.hibernate.dialect.H2Dialect
