@@ -3,6 +3,6 @@ plugins {
 }
 
 dependencies {
-  api project( ':core' )
+  api project( ':demo-core' )
   api 'com.h2database:h2:1.4.200'
 }
