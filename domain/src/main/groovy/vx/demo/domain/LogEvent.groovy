@@ -4,7 +4,6 @@ import org.grails.datastore.gorm.GormEntity
 
 import grails.gorm.annotation.Entity
 import groovy.transform.TupleConstructor
-import vx.demo.ast.AutoGORMInitializer
 
 @Entity
 @TupleConstructor( excludes=[ 'id' ] )

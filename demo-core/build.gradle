@@ -4,4 +4,6 @@ plugins {
 
 dependencies {
   api 'org.grails:grails-datastore-gorm-hibernate5:8.0.0'
+  
+  testImplementation "org.codehaus.groovy:groovy-test:$groovyVersion"
 }

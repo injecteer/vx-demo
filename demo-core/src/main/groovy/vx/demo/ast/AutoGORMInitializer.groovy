@@ -14,6 +14,6 @@ import org.codehaus.groovy.transform.GroovyASTTransformationClass
  */
 @Retention( RetentionPolicy.RUNTIME )
 @Target( [ ElementType.TYPE ] )
-@GroovyASTTransformationClass( classes = [ AutoLoadedASTTransformation ] )
+@GroovyASTTransformationClass( classes = [ AutoGORMASTTransformation ] )
 @interface AutoGORMInitializer {
 }

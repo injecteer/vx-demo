@@ -4,7 +4,6 @@ import org.grails.datastore.gorm.GormEntity
 
 import grails.gorm.annotation.Entity
 import groovy.transform.TupleConstructor
-import vx.demo.ast.AutoGORMInitializer
 
 @Entity
 @TupleConstructor( excludes=[ 'id' ] )
@@ -28,7 +27,7 @@ class User implements GormEntity<User> {
   
   static constraints = {
     name blank:false, matches:/(\p{L}+\s?)+/
-    birthDate validator:{ 
+    birthDate validator:{
       Date now = new Date()
       now - 130 * 365 < it && it < now - 10 * 365
     }

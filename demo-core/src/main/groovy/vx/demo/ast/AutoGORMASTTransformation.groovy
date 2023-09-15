@@ -18,7 +18,9 @@ import groovy.transform.CompileStatic
 
 @GroovyASTTransformation(phase = CompilePhase.SEMANTIC_ANALYSIS)
 @CompileStatic
-class AutoLoadedASTTransformation extends AbstractASTTransformation {
+class AutoGORMASTTransformation extends AbstractASTTransformation {
+
+  private static final ClassNode ENTITY_CN = make Entity
 
   static final List<Expression> fields = []
   
@@ -30,10 +32,9 @@ class AutoLoadedASTTransformation extends AbstractASTTransformation {
       bootstrap = (ClassNode)nodes[ 1 ]
       ClassNode listType = makeClassSafeWithGenerics List, make( String )
       bootstrap.addField 'domainClasses', ACC_PRIVATE | ACC_FINAL, listType, listX( fields )
+      println "Auto GORM: collected ${fields.size()} Entities"
       
-    }else {
-      ClassNode targetClass = source.AST.classes[ 0 ]
-      if( targetClass.getAnnotations( make( Entity ) ) ) fields << constX( targetClass.name )
-    }
+    }else
+      source.AST.classes.each{ if( it.getAnnotations( ENTITY_CN ) ) fields << constX( it.name ) }
   }
 }
