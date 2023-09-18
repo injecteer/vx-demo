@@ -12,21 +12,18 @@ class AutoGORMASTTransformationTest extends GroovyTestCase {
     import grails.gorm.annotation.Entity
     import vx.demo.ast.AutoGORMInitializer
 
-    @Entity class A {
-      String a
-    }
+    @Entity class A {}
 
-    @Entity class B {
-      String b
-    }
+    @Entity class B {}
 
     class Ignored {}
 
-    @AutoGORMInitializer
-    class Initializer {
-    }
+    @AutoGORMInitializer class _Initializer {}
+
+    def initializer = new _Initializer()
     
-    assert new Initializer().domainClasses.size() == 2
+    assert initializer.domainClasses.size() == 2
+    assert initializer.domainClasses == [ 'A', 'B' ]
     """
   }
 }

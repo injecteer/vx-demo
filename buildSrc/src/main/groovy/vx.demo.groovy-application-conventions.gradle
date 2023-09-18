@@ -47,5 +47,5 @@ applicationDefaultJvmArgs = [
 
 run {
   mainClassName = 'io.vertx.core.Launcher'
-  args 'run', verticleName//, '-cluster'
+  args 'run', verticleName, '-cluster'
 }

@@ -20,3 +20,4 @@ src/main/resources/version.txt
 !/ci/
 !/ci/bin/
 .m2
+mermaid.md

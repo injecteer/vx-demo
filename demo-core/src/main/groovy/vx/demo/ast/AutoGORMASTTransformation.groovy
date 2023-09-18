@@ -24,12 +24,10 @@ class AutoGORMASTTransformation extends AbstractASTTransformation {
 
   static final List<Expression> fields = []
   
-  static ClassNode bootstrap
-  
   @Override
   void visit(ASTNode[] nodes, SourceUnit source) {
     if( 2 == nodes.size() && nodes[ 0 ] in AnnotationNode && AutoGORMInitializer.name == ((AnnotationNode)nodes[ 0 ]).classNode.name ){
-      bootstrap = (ClassNode)nodes[ 1 ]
+      ClassNode bootstrap = (ClassNode)nodes[ 1 ]
       ClassNode listType = makeClassSafeWithGenerics List, make( String )
       bootstrap.addField 'domainClasses', ACC_PRIVATE | ACC_FINAL, listType, listX( fields )
       println "Auto GORM: collected ${fields.size()} Entities"

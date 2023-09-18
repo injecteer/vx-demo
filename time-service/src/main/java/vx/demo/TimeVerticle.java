@@ -1,5 +1,7 @@
 package vx.demo;
 
+import static io.vertx.core.json.JsonObject.mapFrom;
+import static vx.demo.gorm.JavaGORMHelper.findAllBy;
 import static vx.demo.gorm.JavaGORMHelper.withTransaction;
 
 import java.text.SimpleDateFormat;
@@ -19,6 +21,8 @@ import vx.demo.web.WebVerticle;
 
 @HealthCheckOnly(8092)
 public class TimeVerticle extends WebVerticle implements Handler<Message<String>> {
+
+  private static final Map<String, Object> PARAMS = Map.of("sort", "id", "order", "desc", "max", 1);
 
   private final String FORMAT = "dd.MM.yyy EEE HH:mm";
 
@@ -59,6 +63,21 @@ public class TimeVerticle extends WebVerticle implements Handler<Message<String>
 
   @Override
   protected Map<String, Handler<Promise<Status>>> healthChecks() {
-    return Map.of(getClass().getSimpleName(), p -> p.complete(statisticsService.collectStats()));
+    return Map.of(getClass().getSimpleName(), p -> {
+      withTransaction(LogEvent.class, tx -> {
+        
+        List<LogEvent> lastSuccesses = findAllBy(LogEvent.class, "SuccessAndWhat", PARAMS, true, "time");
+        var lastSuccess = lastSuccesses.isEmpty() ? null : lastSuccesses.iterator().next();
+        
+        List<LogEvent> lastFailures = findAllBy(LogEvent.class, "SuccessAndWhatNotEqual", PARAMS, false, "weather");
+        var lastFailure = lastFailures.isEmpty() ? null : lastFailures.iterator().next();
+        
+        Status status = statisticsService.collectStats();
+        status.getData().put("lastSuccess", mapFrom(lastSuccess));
+        status.getData().put("lastFailure", mapFrom(lastFailure));
+        
+        p.complete(status);
+      });
+    });
   }
 }

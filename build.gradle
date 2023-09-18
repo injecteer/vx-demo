@@ -1,0 +1,50 @@
+plugins {
+  id 'com.github.node-gradle.node' version '7.0.0'
+}
+
+node {
+  download = false
+  version = '18.17.1'
+  npmVersion = ''
+  workDir = file "${project.projectDir}/.gradle/nodejs"
+  npmWorkDir = file "${project.projectDir}/.gradle/npm"
+  nodeProxySettings = ProxySettings.SMART
+}
+
+File markupFile = file './mermaid.md'
+
+task projectGraphMarkup {
+  group 'documentation'
+  description 'Generates markup file for project dependency graph'
+  
+  doLast{
+    def deps = new TreeSet()
+    project.subprojects.each{ module ->
+      addDeps module, 'api', deps
+      addDeps module, 'implementation', deps
+    }
+    
+    markupFile.createNewFile()
+    markupFile.withWriter{
+      it << 'flowchart BT\n\t'
+      it << deps.join( '\n\t' )
+    }
+  }
+}
+
+void addDeps( module, type, accum ) {
+  boolean isLibrary = module.plugins.hasPlugin 'java-library'
+  String icon = isLibrary ? 'book' : module.name.contains( 'mothership' ) ? 'icons' : 'bolt'
+  accum << "$module.name[fas:fa-$icon $module.name]"
+  module.configurations.findByName( type )?.dependencies?.each{
+    if( it.hasProperty( 'dependencyProject' ) ) accum << "$module.name --> $it.name"
+  }
+}
+
+task projectGraph( type:NpxTask ) {
+  dependsOn projectGraphMarkup
+  group 'documentation'
+  description 'Generates project dependency graph'
+  command = '@mermaid-js/mermaid-cli'
+  args = [ '-i', 'mermaid.md', '-o', 'mermaid.svg' ]
+}

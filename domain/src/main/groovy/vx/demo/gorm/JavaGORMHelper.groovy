@@ -46,4 +46,16 @@ class JavaGORMHelper {
     clazz.executeQuery( query ) as List
   }
   
+  static <T extends GormEntity> List<T> findAllBy( Class<T> clazz, String what, Map<String,Object> params = [:], Object... args ) {
+    clazz."findAllBy$what"( *args, params )
+  }
+  
+  static <T extends GormEntity> T findBy( Class<T> clazz, String what, Object... args ) {
+    clazz."findBy$what"( *args )
+  }
+  
+  static <T extends GormEntity> T countBy( Class<T> clazz, String what, Object... args ) {
+    clazz."countBy$what"( *args )
+  }
+  
 }
