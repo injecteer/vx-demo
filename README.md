@@ -13,22 +13,9 @@ graph TD;
 flowchart BT;
 classDef ext font-size:x-small, color:#888;
 app[fas:fa-bolt app];
-demo-core-ext[fas:fa-link +
-grails-datastore-gorm-hibernate5
-groovy
-groovy-dateutil
-groovy-json
-groovy-yaml]:::ext;
+demo-core-ext[fas:fa-link +-]:::ext;
 demo-core[fas:fa-book demo-core];
-domain-ext[fas:fa-link +
-h2
-jackson-databind
-log4j-over-slf4j
-logback-classic
-vertx-core
-vertx-hazelcast
-vertx-health-check
-vertx-web]:::ext;
+domain-ext[fas:fa-link +]:::ext;
 domain[fas:fa-book domain];
 mothership[fas:fa-icons mothership];
 time-service[fas:fa-bolt time-service];
