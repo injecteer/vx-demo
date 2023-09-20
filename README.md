@@ -1,14 +1,6 @@
 This is a super-cool Vert.x demo project!
 
 ```mermaid
-graph TD;
-    A-->B;
-    A-->C;
-    B-->D;
-    C-->D;
-```
-
-```mermaid
 
 flowchart BT
 	classDef ext font-size:x-small, color:#888
