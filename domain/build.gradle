@@ -4,5 +4,18 @@ plugins {
 
 dependencies {
   api project( ':demo-core' )
+  
+  api "io.vertx:vertx-core:$vertxVersion"
+  api "io.vertx:vertx-web:$vertxVersion"
+  api "io.vertx:vertx-health-check:$vertxVersion"
+  api "io.vertx:vertx-hazelcast:$vertxVersion"
+  
   api 'com.h2database:h2:1.4.200'
+  
+  api 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
+
+  api 'ch.qos.logback:logback-classic:1.4.11'
+  api 'org.slf4j:log4j-over-slf4j:2.0.9'
+  
+  implementation 'org.spockframework:spock-core:2.3-groovy-3.0'
 }

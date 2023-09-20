@@ -18,26 +18,34 @@ task projectGraphMarkup {
   description 'Generates markup file for project dependency graph'
   
   doLast{
-    def deps = new TreeSet()
+    def links = []
+    def projects = new TreeSet()
     project.subprojects.each{ module ->
-      addDeps module, 'api', deps
-      addDeps module, 'implementation', deps
+      boolean isLibrary = module.plugins.hasPlugin 'java-library'
+      String icon = isLibrary ? '📚' : module.name.contains( 'mothership' ) ? '🛸' : '🗲'
+      projects << """$module.name["$icon $module.name"]"""
+        
+      def extLinks = new TreeSet()
+      [ 'api', 'implementation' ].each{ type -> 
+        module.configurations.findByName( type )?.dependencies?.each{
+          it.hasProperty( 'dependencyProject' ) ? links << "$module.name --> $it.name" : extLinks << it.name
+        }
+      }
+      
+      if( extLinks ){
+        extLinks = 1 == extLinks.size() ? extLinks.first() : "+<br>${extLinks.join( '<br>' )}"
+        projects << """$module.name-ext["🔗 $extLinks"]:::ext"""
+        links << "$module.name .-> $module.name-ext"
+      }
     }
     
     markupFile.createNewFile()
-    markupFile.withWriter{
-      it << 'flowchart BT\n\t'
-      it << deps.join( '\n\t' )
+    markupFile.withWriter( 'UTF-8' ){
+      it << 'flowchart BT'
+      it << '\n\tclassDef ext font-size:x-small, color:#888'
+      it << '\n\t' << projects.join( '\n\t' )
+      it << '\n\t' << links.join( '\n\t' )
     }
-  }
-}
-
-void addDeps( module, type, accum ) {
-  boolean isLibrary = module.plugins.hasPlugin 'java-library'
-  String icon = isLibrary ? 'book' : module.name.contains( 'mothership' ) ? 'icons' : 'bolt'
-  accum << "$module.name[fas:fa-$icon $module.name]"
-  module.configurations.findByName( type )?.dependencies?.each{
-    if( it.hasProperty( 'dependencyProject' ) ) accum << "$module.name --> $it.name"
   }
 }
 
