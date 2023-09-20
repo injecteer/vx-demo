@@ -1,6 +1,6 @@
 This is a super-cool Vert.x demo project!
 
-```
+```mermaid
 flowchart BT
 	classDef ext font-size:x-small, color:#888
 	app[fas:fa-bolt app]
