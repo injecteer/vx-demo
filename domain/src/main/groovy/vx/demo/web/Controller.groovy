@@ -4,6 +4,7 @@ import org.grails.datastore.gorm.GormEntity
 import org.springframework.context.MessageSource
 import org.springframework.validation.FieldError
 
+import io.vertx.core.http.HttpServerRequest
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.RoutingContext
 
@@ -15,6 +16,21 @@ trait Controller {
   MessageSource messageSource
   
   static final String JSON = 'application/json'
+  
+  
+  Map params( RoutingContext rc ) {
+    Map res = [:]
+    Closure setter = { k, v -> res[ k ] = v }
+    rc.pathParams()?.each setter
+    rc.queryParams()?.entries()?.each setter
+    HttpServerRequest req = rc.request()
+    req.formAttributes()?.entries()?.each setter
+    try{
+      JsonObject body = rc.body()?.asJsonObject()
+      if( body ) res += body.map
+    }catch( Exception ignore ){}
+    res
+  }
   
   void ok( RoutingContext rc, o = null, int code = 200 ) {
     respond rc, o, code

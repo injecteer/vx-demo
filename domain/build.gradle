@@ -17,6 +17,8 @@ dependencies {
   api 'ch.qos.logback:logback-classic:1.4.11'
   api 'org.slf4j:log4j-over-slf4j:2.0.9'
   
+  api 'org.mindrot:jbcrypt:0.4'
+  
   implementation 'org.spockframework:spock-core:2.3-groovy-3.0'
   
   testImplementation "org.codehaus.groovy:groovy-test:$groovyVersion"
