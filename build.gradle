@@ -44,7 +44,7 @@ task projectGraphMarkup {
     markupFile.withWriter( 'UTF-8' ){
       it << '```mermaid\n'
       it << 'flowchart BT'
-      it << '\n\tclassDef ext font-size:x-small, color:#888, max-width:24em'
+      it << '\n\tclassDef ext font-size:x-small, color:#888'
       it << '\n\t' << projects.join( '\n\t' )
       it << '\n\t' << links.join( '\n\t' )
       it << '\n```'
