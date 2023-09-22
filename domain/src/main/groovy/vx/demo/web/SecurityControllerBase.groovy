@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit
 
 import org.apache.log4j.Logger
 import org.mindrot.jbcrypt.BCrypt
+import org.springframework.context.MessageSource
 
 import grails.gorm.transactions.Transactional
 import groovy.transform.TypeChecked
@@ -29,7 +30,7 @@ abstract class SecurityControllerBase implements Controller {
   
   static class Config {
     
-    String skip
+    String skip = '/api/pub/'
 
     int sessionDuration
     
@@ -44,8 +45,9 @@ abstract class SecurityControllerBase implements Controller {
   
   final Config config
   
-  SecurityControllerBase( Map config ) {
+  SecurityControllerBase( Map config, MessageSource messageSource ) {
     log = Logger.getLogger getClass()
+    this.messageSource = messageSource
     this.config = config as Config
   }
   
@@ -59,7 +61,7 @@ abstract class SecurityControllerBase implements Controller {
     String authorization = rc.request().getHeader( 'authorization' )?.trim()
     
     if( !authorization?.startsWith( 'Bearer ' ) ){
-      err rc, 401
+      err rc, null, 401
       return
     }
     
@@ -103,14 +105,14 @@ abstract class SecurityControllerBase implements Controller {
   void checkCookie( RoutingContext rc ) {
     Cookie c = rc.request().getCookie config.cookieName
     if( !c?.value ){
-      err rc, 401
+      noAuth rc
       return
     }
     
     checkJwt( c.value ){ AsyncResult<VUser> res ->
       log.info "$c.value -> $res"
       if( res.failed() ){
-        err rc, 401
+        noAuth rc
         return
       }
       
@@ -128,7 +130,7 @@ abstract class SecurityControllerBase implements Controller {
           rc.user = res.result()
           rc.next()
         }else
-          err rc, 401
+          noAuth rc
       }
     }
   }
@@ -177,7 +179,7 @@ abstract class SecurityControllerBase implements Controller {
   
   private static final String SPECIALS = '!?%#&@-=_./'
   
-  private String generatePassword() {
+  protected String generatePassword() {
     Random rand = new Random( System.currentTimeMillis() )
     List pw = (0..8).collect{ CHARS[ rand.nextInt( CHARS.size() ) ] }
     pw += (0..1).collect{ SPECIALS[ rand.nextInt( SPECIALS.size() ) ] }

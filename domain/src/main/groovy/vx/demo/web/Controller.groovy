@@ -17,7 +17,6 @@ trait Controller {
   
   static final String JSON = 'application/json'
   
-  
   Map params( RoutingContext rc ) {
     Map res = [:]
     Closure setter = { k, v -> res[ k ] = v }
@@ -42,6 +41,10 @@ trait Controller {
   
   void notFound( RoutingContext rc, o = null ) {
     respond rc, o, 404
+  }
+
+  void noAuth( RoutingContext rc, o = null ) {
+    respond rc, o, 401
   }
   
   void respond( RoutingContext rc, o, int code = 200 ) {

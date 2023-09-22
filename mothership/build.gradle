@@ -6,4 +6,5 @@ dependencies {
   implementation project( ':app' )
   implementation project( ':time-service' )
   implementation project( ':weather-service' )
+  implementation project( ':vx-demo-backoffice' )
 }

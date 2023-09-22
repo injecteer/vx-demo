@@ -1,5 +1,6 @@
 package vx.demo.web
 
+import static io.vertx.core.http.HttpMethod.*
 import static io.vertx.core.json.JsonObject.mapFrom
 
 import org.apache.log4j.Logger
@@ -12,6 +13,7 @@ import io.vertx.core.AbstractVerticle
 import io.vertx.core.Handler
 import io.vertx.core.Promise
 import io.vertx.core.eventbus.Message
+import io.vertx.core.http.HttpMethod
 import io.vertx.core.impl.launcher.commands.VersionCommand
 import io.vertx.core.json.jackson.DatabindCodec
 import io.vertx.ext.healthchecks.HealthCheckHandler
@@ -19,11 +21,16 @@ import io.vertx.ext.healthchecks.HealthChecks
 import io.vertx.ext.healthchecks.Status
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.common.WebEnvironment
+import io.vertx.ext.web.handler.CorsHandler
 import vx.demo.gorm.Bootstrap
 
 @TypeChecked
 class WebVerticle extends AbstractVerticle {
   
+  static final Set<HttpMethod> CORS_METHODS = [ GET, POST, PUT, DELETE, OPTIONS ] as Set
+  
+  static final Set<String> CORS_HEADERS = [ 'Content-Type', 'Authorization', 'Access-Control-Allow-Headers', 'Access-Control-Allow-Method', 'Access-Control-Allow-Origin', 'Access-Control-Allow-Credentials' ] as Set
+
   protected Map config
   
   protected boolean isStandalone = false
@@ -77,6 +84,17 @@ class WebVerticle extends AbstractVerticle {
         hc.checkStatus{ it.succeeded() ? msg.reply( mapFrom( it.result().toJson() ) ) : msg.fail( 0, it.cause().message ) }
       }
     log.info 'starting ...'
+  }
+  
+  /**
+   * Initializes CORS Handling for dev-mode only
+   * @param origin
+   */
+  protected void enableCORS( String origin ){
+    if( !WebEnvironment.development() ) return
+    CorsHandler cors = CorsHandler.create().addOrigin origin allowCredentials true allowedMethods CORS_METHODS allowedHeaders CORS_HEADERS exposedHeaders CORS_HEADERS
+    router.route().handler cors
+    log.info "CORS enabled -> $origin" 
   }
   
   protected Map<String,Handler<Promise<Status>>> healthChecks() {

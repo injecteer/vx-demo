@@ -1,0 +1,69 @@
+* {
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body,
+#root,
+.main {
+  min-height: 100% !important;
+  height: 100%;
+  font-family: "Montserrat", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.footer {
+  font-size: small;
+  color: #999;
+  margin-left: 1em;
+  padding:1em 0;
+  border-top: 1px solid #e5e5e5;
+}
+
+#root{
+  padding:0 .8em;
+}
+
+.mainMenu {
+  display: flex; 
+  justify-content: flex-end
+}
+
+.circular {
+  position: relative;
+  overflow: hidden;
+  margin-right: .6em;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+}
+
+.circular img {
+  width: 100%;
+  height: auto;
+}
+
+.pointer {
+  cursor: pointer;
+}
+
+.inline-edit {
+  position: relative;
+  background-color: '#fff';
+  z-index: 100;
+}
+
+.inline-edit-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: transparent;
+  z-index: 10;
+}
+
+.CodeMirror-autoheight .CodeMirror {
+  height: auto;
+  border: 1px solid #eee;
+}

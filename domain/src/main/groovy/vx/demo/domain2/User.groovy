@@ -1,6 +1,7 @@
 package vx.demo.domain2
 
 import org.grails.datastore.gorm.GormEntity
+import org.mindrot.jbcrypt.BCrypt
 
 import grails.gorm.annotation.Entity
 import groovy.transform.EqualsAndHashCode
@@ -29,6 +30,8 @@ class User implements GormEntity<User> {
   
   Date lastUpdated
   
+  transient boolean forcePasswordReset = false
+  
   List<String> getPermissions() {
     permissions()*.name()
   }
@@ -49,7 +52,28 @@ class User implements GormEntity<User> {
     permisions.every{ !( permissionMask & it.asMask() ) }
   }
   
+  /**
+   * Lifecycle method to update the encrypted password in case of it has been changed.
+   */
+  def beforeValidate() {
+    String oldPw = getOriginalValue 'password'
+    if( oldPw && isDirty( 'password' ) && !forcePasswordReset ) throw new Exception( 'You must set forcePasswordReset=true in order to change the password!' )
+    if( !oldPw || forcePasswordReset ) encodePassword()
+  }
+     
+  /**
+   * Method supposed to encrypt the password. Automatically called on lifecycle events.
+   * Implementations of this method should encrypt the password.
+   *
+   * @return a String containing the encrypted password
+   */
+  String encodePassword() {
+    password = BCrypt.hashpw password, BCrypt.gensalt()
+  }
+  
   static hasOne = [ address:Address ]
+  
+  static transients = [ 'permissions' ]
   
   static constraints = {
     name blank:false, matches:/(\p{L}+\s?)+/
@@ -59,5 +83,6 @@ class User implements GormEntity<User> {
       Date now = new Date()
       now - 130 * 365 < it && it < now - 10 * 365
     }
+    address nullable:true
   }
 }

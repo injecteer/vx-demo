@@ -1,1 +1,1 @@
-include 'demo-core', 'domain', 'app', 'time-service', 'weather-service', 'mothership'
+include 'demo-core', 'domain', 'app', 'time-service', 'weather-service', 'vx-demo-backoffice', 'mothership'

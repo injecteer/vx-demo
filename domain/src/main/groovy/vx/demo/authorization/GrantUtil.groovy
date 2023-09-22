@@ -19,10 +19,10 @@ class GrantUtil {
   static boolean checkAuthorization( RoutingContext rc, List<Permission> grants ) {
     Map principal = rc.user()?.principal()?.map
     
-    String id = principal.id
+    String id = principal?.id
     if( !id ) return false
     
-    //TODO: encrypt id?
+    //TODO: decrypt id?
     
     User ua = new User( permissions:principal.permissions as List<String> )
     
@@ -33,7 +33,7 @@ class GrantUtil {
     }else{
       log.info "${rc.normalizedPath() ?: ''} ${ua.permissions.join( ', ' )} !! ${grants.join( ', ' )}"
       onFail?.call()
-      rc.response()?.setStatusCode( 403 )?.end()
+      rc.fail 403
       false
     }
   }

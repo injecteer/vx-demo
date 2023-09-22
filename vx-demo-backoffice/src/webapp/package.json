@@ -1,0 +1,40 @@
+{
+  "name": "webapp",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@vertx/eventbus-bridge-client.js": "^1.0.0",
+    "codemirror": "^5.65.3",
+    "react-codemirror2": "^7.2.1",
+    "axios": "^1.5.0",
+    "cogo-toast": "^4.2.3",
+    "moment": "^2.29.4",
+    "react-confirm-alert": "^3.0.6",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-scripts": "5.0.1",
+    "react-router-dom": "^5.3.2",
+    "react-icons": "^4.11.0",
+    "react-modal": "^3.16.1",
+    "react-spinners": "^0.13.8",
+    "uikit": "^3.16.26"
+  },
+  "scripts": {
+    "start": "set PORT=3010 && react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

@@ -21,3 +21,4 @@ src/main/resources/version.txt
 !/ci/bin/
 .m2
 mermaid.md
+vx-demo-backoffice/src/webapp/node_modules/

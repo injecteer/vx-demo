@@ -11,3 +11,10 @@ gorm:
     hbm2ddl:
       auto: update
     dialect: org.hibernate.dialect.H2Dialect
+    
+security:
+  sessionDuration: 604800 # 1 week
+  pubSecKeys:
+    algorithm: HS256
+    buffer: PLACEHOLDER
+    symmetric: true

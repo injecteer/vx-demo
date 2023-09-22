@@ -40,4 +40,8 @@ class Bootstrap {
     
     initialized.set true
   }
+  
+  List<String> getDomainPackages() {
+    domainClasses.groupBy{ it[ 0..<it.lastIndexOf( '.' ) ] }.keySet().sort()
+  }
 }
