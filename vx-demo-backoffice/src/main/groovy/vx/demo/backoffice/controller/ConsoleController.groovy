@@ -1,5 +1,6 @@
 package vx.demo.backoffice.controller
 
+import grails.gorm.transactions.Transactional
 import groovy.util.logging.Log4j
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.RoutingContext
@@ -22,6 +23,7 @@ class ConsoleController implements Controller {
     router.put '/api/console/execute' consumes JSON produces JSON blockingHandler this.&execute
   }
   
+  @Transactional
   void execute( RoutingContext rc ) {
     Map params = params rc
     
@@ -32,7 +34,7 @@ class ConsoleController implements Controller {
       res.message = "Script ran successfully in ${System.currentTimeMillis() - start} ms".toString()
       ok rc, res
     }catch( Throwable e ){
-      err rc, e, 400
+      err rc, e, 418
     }
   }
   

@@ -11,9 +11,12 @@ import io.vertx.ext.web.handler.ErrorHandler
 import io.vertx.ext.web.handler.FaviconHandler
 import io.vertx.ext.web.handler.ResponseContentTypeHandler
 import io.vertx.ext.web.handler.StaticHandler
+import io.vertx.ext.web.handler.sockjs.SockJSBridgeOptions
+import io.vertx.ext.web.handler.sockjs.SockJSHandler
 import vx.demo.backoffice.controller.ConsoleController
 import vx.demo.backoffice.controller.LogEventController
 import vx.demo.backoffice.controller.SecurityController
+import vx.demo.backoffice.controller.SockJSBridge
 import vx.demo.backoffice.controller.UserController
 import vx.demo.web.WebVerticle
 
@@ -39,11 +42,13 @@ class BackofficeVerticle extends WebVerticle {
     }
     router.route().failureHandler ErrorHandler.create( vertx, WebEnvironment.development() )
     
-    new SecurityController( vertx, router, (Map)config.security, messageSource )
+    SecurityController sec = new SecurityController( vertx, router, (Map)config.security, messageSource )
     
     new LogEventController( router, messageSource )
     new UserController( router, messageSource )
     new ConsoleController( router )
+    
+    new SockJSBridge( vertx, router, sec )
     
     router.get '/*' handler StaticHandler.create().setDefaultContentEncoding( 'UTF-8' )
 

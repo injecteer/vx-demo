@@ -14,7 +14,7 @@ export default class Console extends Component {
     this.setState( { loading:true } )
     axios.put( '/api/console/execute', { script:this.state.script } )
       .then( resp => this.setState( { result:resp.data, error:null, loading:false } ) )
-      .catch( err => this.setState( { error:{ message:err?.error?.message, stack:err?.stack?.join( '\n' ) }, result:null, loading:false } ) )
+      .catch( err => this.setState( { error:{ message:err?.data?.error, stack:err?.data?.stackTrace }, result:null, loading:false } ) )
   }
 
   render(){

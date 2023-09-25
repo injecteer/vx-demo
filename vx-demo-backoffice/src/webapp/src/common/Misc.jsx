@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from "react"
-import { MdArrowBack, MdCheckBox, MdClose } from "react-icons/md"
+import React from "react"
+import { MdArrowBack } from "react-icons/md"
 import { GrClose } from "react-icons/gr"
 import moment from 'moment'
 import { confirmAlert } from 'react-confirm-alert'
@@ -40,47 +40,3 @@ export const FormButtons = ({ history, kill }) => <div className="uk-margin-top"
   <button type="submit" className="uk-button uk-button-primary uk-align-right">{kill ? 'Update' : 'Save'}</button> 
   {kill && <button type="button" className="uk-button uk-button-danger uk-align-right" onClick={onDelete( kill )}>Delete</button>}
 </div>
-
-export const InlineEdit = ({ text, onDone }) => {
-
-  const [ value, setValue ] = useState( text )
-
-  const [ editing, setEditing ] = useState( false )
-  
-  const cancel = _ => {
-    setValue( text )
-    setEditing( false )
-  }
-
-  const finish = _ => {
-    onDone( value )
-    setEditing( false )
-  }
-
-  const onKeyDown = ({ key }) => {
-    switch( key ){
-      case 'Escape':
-        cancel()
-        break
-      case 'Enter':
-        finish()
-        break
-    }
-  }
-  
-  const inputRef = useRef()
-
-  useEffect( _ => inputRef?.current?.focus(), [ editing ] )
-
-  return editing ? 
-    <>
-      <div className="inline-edit-overlay" onClick={cancel} onFocus={cancel}/>
-      <div className="inline-edit">
-        <input type="text" className="uk-input uk-form-width-medium uk-form-small" ref={inputRef} value={value} onChange={({ currentTarget }) => setValue( currentTarget.value )} onKeyDown={onKeyDown} />
-        <MdCheckBox color="green" size="2em" className="pointer" onClick={finish}/>
-        <MdClose size="2em" className="pointer" onClick={cancel}/>
-      </div> 
-    </>
-    : 
-    <span className="pointer" onClick={_ => setEditing( true )}>{value}</span>
-}

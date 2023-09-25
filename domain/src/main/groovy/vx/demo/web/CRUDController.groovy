@@ -31,7 +31,7 @@ abstract class CRUDController<T extends GormEntity> implements Controller {
   
   void registerMappings( Router router, String name, String namePlural ) {
     if( !router ) return
-    router.post "/api/$namePlural" produces JSON handler this.&list
+    router.post "/api/$namePlural" produces JSON handler this::list
     router.get "/api/$name/:id/:props" produces JSON handler this.&details
     router.get "/api/$name/:id/" produces JSON handler this.&details
     router.get "/api/$name/:id" produces JSON handler this.&details

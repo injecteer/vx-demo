@@ -67,3 +67,15 @@ body,
   height: auto;
   border: 1px solid #eee;
 }
+
+.scaleUpDown {
+  position: relative;
+  animation-name: scaleUpDownKF;
+  animation-duration: 1s;
+}
+
+@keyframes scaleUpDownKF {
+  0%   {scale:1}
+  50%  {scale:1.6}
+  100% {scale:1}
+}

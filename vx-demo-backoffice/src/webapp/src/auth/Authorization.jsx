@@ -13,7 +13,9 @@ export const getUser = () => {
 
 export const setAuthorization = authorization => localStorage.setItem( 'authorization', authorization )
 
-export const isAuthenticated = () => localStorage.getItem( 'authorization' ) && getUser()
+export const getAuthorisation = _ => localStorage.getItem( 'authorization' )
+
+export const isAuthenticated = _ => getAuthorisation() && getUser()
 
 export const IsAuthenticated = ({ children }) => <>{isAuthenticated() && children}</>
 

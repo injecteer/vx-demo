@@ -24,14 +24,14 @@ class GrantUtil {
     
     //TODO: decrypt id?
     
-    User ua = new User( permissions:principal.permissions as List<String> )
+    User u = new User( permissions:principal.permissions as List<String> )
     
-    if( ua.isOf( grants as Permission[] ) ){
-      log.info "${rc.normalizedPath() ?: ''} ${ua.permissions.join( ', ' )} == ${grants.join( ', ' )}"
+    if( u.isOf( grants as Permission[] ) ){
+      log.info "${rc.normalizedPath() ?: ''} ${u.permissions.join( ', ' )} == ${grants.join( ', ' )}"
       onOk?.call()
       true
     }else{
-      log.info "${rc.normalizedPath() ?: ''} ${ua.permissions.join( ', ' )} !! ${grants.join( ', ' )}"
+      log.info "${rc.normalizedPath() ?: ''} ${u.permissions.join( ', ' )} !! ${grants.join( ', ' )}"
       onFail?.call()
       rc.fail 403
       false

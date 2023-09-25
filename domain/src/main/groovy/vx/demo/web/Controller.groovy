@@ -62,7 +62,13 @@ trait Controller {
         o = [ body:o ]
         break
       case Throwable:
+        StringWriter sw
+        if( 418 == code ){
+          sw = new StringWriter()
+          o.printStackTrace new PrintWriter( sw )
+        } 
         o = [ error:o.message ]
+        if( sw ) o.stackTrace = sw.toString()
         break
       case JsonObject:
         break

@@ -1,6 +1,5 @@
 import React from "react"
-import FormComponent, { Field, Text }  from "./common/FormComponent"
-import { hashCode }  from "./common/Misc"
+import FormComponent, { Boolean, Field, Text }  from "./common/FormComponent"
 import moment from "moment"
 
 export default class UserEdit extends FormComponent {
@@ -30,10 +29,8 @@ export default class UserEdit extends FormComponent {
       <Text label="Birth Date" inputType="date" name="birthDate" value={birthDate} onChange={this.handleChange}/>
       
       <Field label="Permissions">
-      {[ 'kunde', 'bearbeiter', 'superuser', 'admin' ].map( p => 
-          <label className="uk-margin-right pointer" key={p} htmlFor={'_' + hashCode( p )}>
-            <input className="uk-checkbox" type="checkbox" name="permissions*" value={p} id={'_' + hashCode( p )} defaultChecked={permissions && permissions.includes( p )} onChange={this.handleChange}/> {p}
-          </label>
+        {[ 'kunde', 'bearbeiter', 'superuser', 'admin' ].map( p => 
+          <Boolean key={p} label={p} name="permissions*" value={p} defaultValue={permissions?.includes( p )} onChange={this.handleChange}/>
         )}
       </Field>
 

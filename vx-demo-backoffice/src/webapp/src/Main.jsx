@@ -2,11 +2,12 @@ import React from "react"
 import { Link } from "react-router-dom"
 import { Switch, Route, Redirect, withRouter } from 'react-router'
 import axios from 'axios'
-import { MdMenu } from 'react-icons/md'
+import { MdCircle, MdMenu } from 'react-icons/md'
+import EventBus from '@vertx/eventbus-bridge-client.js'
 import 'uikit/dist/css/uikit.min.css'
 import 'uikit/dist/js/uikit.min.js'
 
-import { isAuthenticated, IsAuthenticated, IsGranted, hasPermission } from "./auth/Authorization"
+import { isAuthenticated, IsAuthenticated, IsGranted, hasPermission, getUser, getAuthorisation } from "./auth/Authorization"
 
 import Auth from "./auth/Auth"
 import Console from "./Console"
@@ -14,9 +15,18 @@ import List from "./common/List"
 import { FancyDate } from "./common/Misc"
 import UserEdit from "./UserEdit"
 import { ForgotPassword } from "./auth/ForgotPassword"
+import cogoToast from "cogo-toast"
 
 class Main extends React.Component {
   
+  eventBus = null
+
+  state = { status:false }
+
+  componentDidMount() {
+    this.connectEventBus()
+  }
+
   logout = _ => {
     localStorage.removeItem( 'authorization' )
     localStorage.removeItem( 'userAccount' )
@@ -31,12 +41,52 @@ class Main extends React.Component {
     axios.defaults.headers.common.authorization = authorization
     this.props.history.replace( '/' )
   }
+  
+  connectEventBus = _ => {
+    if( this.eventBus || !isAuthenticated() ) return
+    
+    this.setState( { status:null } )
 
+    this.eventBus = new EventBus( axios.defaults.baseURL + '/eventbus', { vertxbus_ping_interval:30000 } )
+    
+    this.eventBus.onopen = _ => {
+      this.setState( { status:true } )
+
+      this.eventBus.registerHandler( 'logevent.changed', { authorization:getAuthorisation() }, ( error, msg ) => {
+        const { type, id } = msg.body
+        cogoToast.info( <>New Id <b>{id}</b></> )
+        this.setState( { clazz:'scaleUpDown', [type]:type + '.' + id } )
+        setTimeout( _ => this.setState( { clazz:'' } ), 1100 )
+      } )
+    }
+    
+    this.eventBus.onerror = err => {
+      console.info( 'onerror', err )
+      cogoToast.error( err.message )
+      this.setState( { status:false } )
+      this.eventBus.close()
+      this.eventBus = null
+    }
+    
+    this.eventBus.onclose = _ => {
+      cogoToast.info( 'Connection closed' )
+      this.eventBus = null
+      this.setState( { status:false } )
+    }
+  }
+
+  LogEventsList = _ => <List key={this.state.LogEvent} noSearch object="LogEvent" readonly columns={[ 'id', 'what', 'success', e => [ 'created', <FancyDate time={e.dateCreated}/> ] ]}/>
+  
   render() {
+    const { status, clazz } = this.state
+    
+    const color = null === status ? 'gray' : ( status ? 'green' : 'red' )
+    
     return <div>
-      <div className="mainMenu">
+      <div className="mainMenu uk-margin-right uk-margin-top">
         <IsAuthenticated>
-          <MdMenu/>
+          <MdCircle size="2em" color={color} onClick={this.connectEventBus} className={'pointer uk-margin-right ' + clazz}/>
+          <MdMenu size="2em"/>
           <div data-uk-dropdown="mode: hover">
             <ul className="uk-nav uk-dropdown-nav">
               <li><span className="pointer" onClick={this.logout}>Logout</span></li>
@@ -62,6 +112,7 @@ class Main extends React.Component {
           </ul>
         </IsAuthenticated>
         
+
         <div className="uk-container uk-width-expand uk-margin-top" role="main" data-uk-height-viewport="offset-top: true; offset-bottom: 6">
           <Switch>
             <Route path="/auth/forgotPassword" exact component={ForgotPassword} />
@@ -75,8 +126,8 @@ class Main extends React.Component {
 
             <PrivateRoute path="/console" role="admin" exact component={Console} />
 
-            <PrivateRoute path="/logEvents/:offset" role="kunde" exact component={LogEventList} />
-            <PrivateRoute path="/logEvents" role="kunde" exact component={LogEventList} />
+            <PrivateRoute path="/logEvents/:offset" role="kunde" exact component={this.LogEventsList} />
+            <PrivateRoute path="/logEvents" role="kunde" exact component={this.LogEventsList} />
 
             <Route path="/403" render={_ => <h1>Not Authorized</h1>} />
             <Route render={_ => <h1>Not found</h1>} />
@@ -110,12 +161,10 @@ const PrivateRoute = ({ component:C, render, role, ...rest }) =>
       return <Redirect to={{ pathname:'/auth', state:{ from:props.location } }}/> 
   }}/>
 
-const UserList = props => <List object="User" {...props} readonly columns={[ 
+const UserList = props => <List object="User" {...props} readonly noSearch columns={[ 
   'email', 'name',
   u => [ 'permissions', u.permissions && u.permissions.join( ', ' ) ],
   u => [ 'Birth date', <FancyDate time={u.birthDate}/> ],
   u => [ 'created', <FancyDate time={u.dateCreated}/> ], 
   u => [ 'updated', <FancyDate time={u.lastUpdated}/> ], 
 ]}/>
-
-const LogEventList = props => <List noSearch object="LogEvent" readonly {...props} columns={[ 'what', 'success', e => [ 'created', <FancyDate time={e.dateCreated}/> ] ]}/>

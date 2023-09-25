@@ -4,8 +4,6 @@ import static groovy.transform.TypeCheckingMode.SKIP
 
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
-import java.util.concurrent.CompletableFuture
-import java.util.concurrent.TimeUnit
 
 import org.apache.log4j.Logger
 import org.mindrot.jbcrypt.BCrypt
@@ -135,22 +133,6 @@ abstract class SecurityControllerBase implements Controller {
     }
   }
       
-  User extractUser( String authorization ) {
-    CompletableFuture<User> fut = new CompletableFuture<>()
-    checkJwt( authorization ){ AsyncResult<VUser> ar ->
-      if( ar.succeeded() )
-        fut.complete new User( id:ar.result().principal().getLong( 'id' ), permissions:(List<String>)ar.result().principal().map.permissions )
-      else
-        fut.completeExceptionally ar.cause()
-    }
-    try{
-      fut.get 2, TimeUnit.SECONDS
-    }catch( Exception e ){
-      log.warn "decodeJwt failed: $e"
-      null
-    }
-  }
-    
   String addAuthHeader( RoutingContext rc, long id, List<Permission> permissions ) {
     String token = 'Bearer ' + generateJWT( id, permissions )
     rc.response().headers().add 'authorization', token

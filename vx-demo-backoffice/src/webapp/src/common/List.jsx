@@ -6,6 +6,7 @@ import cogoToast from 'cogo-toast'
 import { GrClose } from 'react-icons/gr'
 import { IoReload } from 'react-icons/io5'
 import { BackArrow } from './Misc'
+import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from 'react-icons/md'
 
 export default class List extends Component {
   

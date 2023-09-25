@@ -58,6 +58,8 @@ public class TimeVerticle extends WebVerticle implements Handler<Message<String>
       }
 
       le.save();
+      
+      vertx.eventBus().publish( "logevent.changed", mapFrom( Map.of( "type", "LogEvent", "id", le.getId() ) ) );
     });
   }
 

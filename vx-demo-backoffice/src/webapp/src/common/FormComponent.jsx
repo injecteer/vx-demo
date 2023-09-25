@@ -150,6 +150,6 @@ export const Number = ({ name, label, min, max, step, value, onChange, className
   <input className={className ?? 'uk-input'} type={inputType ?? 'number'} min={min ?? 1} max={max ?? 100} step={step ?? 1} name={name} id={'_' + hashCode( name )} value={value ?? 1} onChange={onChange}/>
 </Field>
 
-export const Boolean = ({ name, label, value, defaultValue, onChange, className }) => <Field label={label} name={name}>
-  <input className={className ?? 'uk-checkbox'} type="checkbox" name={name} id={'_' + hashCode( name )} checked={value ?? defaultValue ?? true} onChange={onChange}/>
+export const Boolean = ({ name, label, value, defaultValue, onChange, className }) => <Field label={label} name={name + '_' + value}>
+  <input className={className ?? 'uk-checkbox'} type="checkbox" name={name} value={value} id={'_' + hashCode( name + '_' + value )} checked={!!defaultValue} onChange={onChange}/>
 </Field>
