@@ -1,14 +1,5 @@
 plugins {
-  id 'com.github.node-gradle.node' version '7.0.0'
-}
-
-node {
-  download = false
-  version = '18.17.1'
-  npmVersion = ''
-  workDir = file "${project.projectDir}/.gradle/nodejs"
-  npmWorkDir = file "${project.projectDir}/.gradle/npm"
-  nodeProxySettings = ProxySettings.SMART
+  id 'vx.demo.groovy-node-conventions'
 }
 
 File markupFile = file './mermaid.md'

@@ -3,11 +3,10 @@ import { Link } from "react-router-dom"
 import { Switch, Route, Redirect, withRouter } from 'react-router'
 import axios from 'axios'
 import { MdCircle, MdMenu } from 'react-icons/md'
-import EventBus from '@vertx/eventbus-bridge-client.js'
 import 'uikit/dist/css/uikit.min.css'
 import 'uikit/dist/js/uikit.min.js'
 
-import { isAuthenticated, IsAuthenticated, IsGranted, hasPermission, getUser, getAuthorisation } from "./auth/Authorization"
+import { isAuthenticated, IsAuthenticated, IsGranted, hasPermission, setUser, setAuthorization, clearAuth } from "./auth/Authorization"
 
 import Auth from "./auth/Auth"
 import Console from "./Console"
@@ -16,6 +15,7 @@ import { FancyDate } from "./common/Misc"
 import UserEdit from "./UserEdit"
 import { ForgotPassword } from "./auth/ForgotPassword"
 import cogoToast from "cogo-toast"
+import EventBusBridge from "./EventBusBridge"
 
 class Main extends React.Component {
   
@@ -24,55 +24,50 @@ class Main extends React.Component {
   state = { status:false }
 
   componentDidMount() {
-    this.connectEventBus()
+    if( isAuthenticated() ) this.connectEventBusBridge()
+  }
+
+  componentWillUnmount() {
+    EventBusBridge.close()
   }
 
   logout = _ => {
-    localStorage.removeItem( 'authorization' )
-    localStorage.removeItem( 'userAccount' )
+    clearAuth()
     delete axios.defaults.headers.common.authorization
     this.props.history.replace( '/auth' )
+    EventBusBridge.close()
   }
 
   onAuthSuccess = resp => {
-    const { userAccount, authorization } = resp.data
-    localStorage.setItem( 'userAccount', JSON.stringify( userAccount ) )
-    localStorage.setItem( 'authorization', authorization )
+    const { user, authorization } = resp.data
+    setUser( user )
+    setAuthorization( authorization )
     axios.defaults.headers.common.authorization = authorization
     this.props.history.replace( '/' )
+    this.connectEventBusBridge()
   }
   
-  connectEventBus = _ => {
-    if( this.eventBus || !isAuthenticated() ) return
-    
-    this.setState( { status:null } )
+  connectEventBusBridge = _ => {
+    if( EventBusBridge.isConnected() ) return
 
-    this.eventBus = new EventBus( axios.defaults.baseURL + '/eventbus', { vertxbus_ping_interval:30000 } )
-    
-    this.eventBus.onopen = _ => {
-      this.setState( { status:true } )
-
-      this.eventBus.registerHandler( 'logevent.changed', { authorization:getAuthorisation() }, ( error, msg ) => {
-        const { type, id } = msg.body
-        cogoToast.info( <>New Id <b>{id}</b></> )
-        this.setState( { clazz:'scaleUpDown', [type]:type + '.' + id } )
-        setTimeout( _ => this.setState( { clazz:'' } ), 1100 )
-      } )
-    }
-    
-    this.eventBus.onerror = err => {
-      console.info( 'onerror', err )
-      cogoToast.error( err.message )
-      this.setState( { status:false } )
-      this.eventBus.close()
-      this.eventBus = null
-    }
-    
-    this.eventBus.onclose = _ => {
-      cogoToast.info( 'Connection closed' )
-      this.eventBus = null
-      this.setState( { status:false } )
-    }
+    EventBusBridge.connect( 
+      _ => this.setState( { status:true } ), 
+      {
+        'weather.called':( error, msg ) => {
+          const { type, id } = msg.body
+          cogoToast.warn( <><b>weather.called</b> -&gt; New Id <b>{id}</b></> )
+          this.setState( { clazz:'scaleUpDown', [type]:type + '.' + id } )
+          setTimeout( _ => this.setState( { clazz:'' } ), 1100 )
+        },
+        'logevent.changed':( error, msg ) => {
+          const { type, id } = msg.body
+          cogoToast.info( <><b>logevent.changed</b> -&gt; New Id <b>{id}</b></> )
+          this.setState( { clazz:'scaleUpDown', [type]:type + '.' + id } )
+          setTimeout( _ => this.setState( { clazz:'' } ), 1100 )
+        },
+      },
+      _ => this.setState( { status:true } )
+    )
   }
 
   LogEventsList = _ => <List key={this.state.LogEvent} noSearch object="LogEvent" readonly columns={[ 'id', 'what', 'success', e => [ 'created', <FancyDate time={e.dateCreated}/> ] ]}/>
@@ -85,7 +80,7 @@ class Main extends React.Component {
     return <div>
       <div className="mainMenu uk-margin-right uk-margin-top">
         <IsAuthenticated>
-          <MdCircle size="2em" color={color} onClick={this.connectEventBus} className={'pointer uk-margin-right ' + clazz}/>
+          <MdCircle size="2em" color={color} onClick={this.connectEventBusBridge} className={'pointer uk-margin-right ' + clazz}/>
           <MdMenu size="2em"/>
           <div data-uk-dropdown="mode: hover">
             <ul className="uk-nav uk-dropdown-nav">

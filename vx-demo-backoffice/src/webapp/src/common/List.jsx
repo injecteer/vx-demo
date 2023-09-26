@@ -7,6 +7,7 @@ import { GrClose } from 'react-icons/gr'
 import { IoReload } from 'react-icons/io5'
 import { BackArrow } from './Misc'
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from 'react-icons/md'
+import { useQuery } from '@tanstack/react-query'
 
 export default class List extends Component {
   
@@ -40,9 +41,16 @@ export default class List extends Component {
     const max = this.max ?? this.props.max ?? 20
     const obj = object[ 0 ].toLowerCase() + object.substring( 1 )
     if( this.props.history ) this.props.history.replace( `/${obj}s/${offset}` )
-    const data = { offset, max, ...this.state.query }
+    const params = { offset, max, ...this.state.query }
     const axs = this.axiosInstance ?? this.props.axios ?? axios
-    axs.post( `/api/${obj}s`, data ).then( resp => this.setState( { ...resp.data, offset, loading:false } ) ).finally( _ => this.setState( { loading:false } ) )
+    
+    // const { isLoading, isError, error, data, isFetching, isPreviousData } = useQuery( {
+    //   queryKey:[ obj + 's', offset ],
+    //   queryFn:_ => axs.post( `/api/${obj}s`, params ),
+    //   keepPreviousData:true
+    // } )
+    // this.setState( { ...data, offset, loading:isLoading } )
+    axs.post( `/api/${obj}s`, params ).then( resp => this.setState( { ...resp.data, offset, loading:false } ) ).finally( _ => this.setState( { loading:false } ) )
   }
   
   handleQueryChange = ({ currentTarget }) => {
@@ -93,6 +101,8 @@ export default class List extends Component {
     const { object, columns, linkPath } = { ...this, ...this.props }
     const { loading, count, offset } = this.state
     const list = this.props.list ?? this.state.list
+
+    console.info( 'rendering list', object, loading )
 
     const obj = object[ 0 ].toLowerCase() + object.substring( 1 )
     

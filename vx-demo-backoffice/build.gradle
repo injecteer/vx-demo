@@ -1,7 +1,34 @@
 plugins {
   id 'vx.demo.groovy-application-conventions'
+  id 'vx.demo.groovy-node-conventions'
 }
 
 dependencies {
   implementation "io.vertx:vertx-auth-jwt:$vertxVersion"
 }
+
+task yarnBuild( type:YarnTask ) {
+  group = 'node'
+  description = 'Builds production version of the webapp'
+  workingDir = file "$project.projectDir/src/webapp"
+  args = [ 'build' ]
+}
+
+task copyWebApp( type:Copy ) {
+  group = 'node'
+  dependsOn yarnBuild
+  description = 'Copies the react webapp into build dir'
+  from( 'src/webapp/build' )//{ exclude 'index.html' }
+  into "$buildDir/resources/main/webroot"
+}
+
+//task processIndex( type:Copy ) {
+//  group = 'node'
+//  description = 'Replaces debug tokens in index.html'
+//  dependsOn copyWebApp
+//  from( 'src/webapp/build' ){ include 'index.html' }
+//  into "$buildDir/resources/main"
+//  filter{ it.replaceAll( '(href|src)="/', '$1="/static/' ) }
+//}
+
+shadowJar.dependsOn copyWebApp

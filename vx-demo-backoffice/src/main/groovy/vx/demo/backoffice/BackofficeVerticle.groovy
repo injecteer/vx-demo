@@ -5,6 +5,7 @@ import org.springframework.context.support.ResourceBundleMessageSource
 
 import groovy.transform.TypeChecked
 import io.vertx.core.Promise
+import io.vertx.core.buffer.Buffer
 import io.vertx.ext.web.common.WebEnvironment
 import io.vertx.ext.web.handler.BodyHandler
 import io.vertx.ext.web.handler.ErrorHandler
@@ -31,11 +32,13 @@ class BackofficeVerticle extends WebVerticle {
     
     MessageSource messageSource = new ResourceBundleMessageSource( defaultEncoding:'UTF-8', basename:'i18n.messages' )
     
+    Buffer indexHtml = Buffer.buffer getClass().getResource( '/webroot/index.html' ).text
+    
     enableCORS 'http://localhost:3010'
     
     router.route().handler BodyHandler.create()
     router.route().handler ResponseContentTypeHandler.create()
-    router.route().handler FaviconHandler.create( vertx )
+    router.route().handler FaviconHandler.create( vertx, 'webroot/favicon.ico' )
     router.route().failureHandler{
       log.error "${it.request().method()}:${it.normalizedPath()}", it.failure()
       it.next()
@@ -50,7 +53,8 @@ class BackofficeVerticle extends WebVerticle {
     
     new SockJSBridge( vertx, router, sec )
     
-    router.get '/*' handler StaticHandler.create().setDefaultContentEncoding( 'UTF-8' )
+    router.get '/static/*' handler StaticHandler.create().setDefaultContentEncoding( 'UTF-8' )
+    router.get '/*' handler{ it.end indexHtml }
 
     vertx.createHttpServer().requestHandler router listen HTTP, startPromise
   }

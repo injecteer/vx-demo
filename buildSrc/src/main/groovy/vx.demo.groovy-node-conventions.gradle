@@ -1,0 +1,12 @@
+plugins {
+  id 'com.github.node-gradle.node'
+}
+
+node {
+  download = false
+  version = '18.17.1'
+  npmVersion = ''
+  workDir = file "${project.projectDir}/.gradle/nodejs"
+  npmWorkDir = file "${project.projectDir}/.gradle/npm"
+  nodeProxySettings = ProxySettings.SMART
+}

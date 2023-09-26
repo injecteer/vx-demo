@@ -34,3 +34,8 @@ export const IsGranted = ({ all, any, children }) => {
 
   return granted ? children : null
 }
+
+export const clearAuth = _ => {
+  localStorage.removeItem( 'authorization' )
+  localStorage.removeItem( 'user' )
+}

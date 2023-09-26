@@ -22,7 +22,8 @@ import vx.demo.web.WebVerticle
 class MothershipVerticle extends WebVerticle {
 
   final Map<Class,?> VERTICLES = [
-    (TimeVerticle):[ instances:2, config:[ nonStandalone:true ] ],
+//    (TimeVerticle):[ instances:2, config:[ nonStandalone:true ] ],
+    (TimeVerticle):[ config:[ nonStandalone:true ] ],
     (WeatherVerticle):[ worker:true, config:[ nonStandalone:true ] ],
     (DemoVerticle):[ config:[ nonStandalone:true ] ],
   ]

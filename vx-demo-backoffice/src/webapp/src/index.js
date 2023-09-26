@@ -5,8 +5,11 @@ import { BrowserRouter } from "react-router-dom"
 import Main from './Main'
 import axios from 'axios'
 import './index.css'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 Modal.setAppElement( '#root' )
+
+const queryClient = new QueryClient()
 
 axios.defaults.baseURL = window.hostUrl
 axios.defaults.headers.common[ 'Content-Type' ] = 'application/json; charset=UTF-8'
@@ -45,4 +48,8 @@ axios.interceptors.response.use( resp => {
   }
 } )
 
-createRoot( document.getElementById( 'root' ) ).render( <BrowserRouter><Main/></BrowserRouter> )
+createRoot( document.getElementById( 'root' ) ).render( <BrowserRouter>
+  <QueryClientProvider client={queryClient}>
+    <Main/>
+  </QueryClientProvider>
+</BrowserRouter> )

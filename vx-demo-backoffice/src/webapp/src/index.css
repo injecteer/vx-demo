@@ -76,6 +76,6 @@ body,
 
 @keyframes scaleUpDownKF {
   0%   {scale:1}
-  50%  {scale:1.6}
+  50%  {scale:1.6; color:magenta;}
   100% {scale:1}
 }
