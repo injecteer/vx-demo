@@ -31,4 +31,29 @@ task copyWebApp( type:Copy ) {
 //  filter{ it.replaceAll( '(href|src)="/', '$1="/static/' ) }
 //}
 
+
+//task copyWebApp( type:Copy ) {
+//  dependsOn yarnBuild
+//  group 'node'
+//  description 'Copies the react webapp into build dir'
+//  outputs.upToDateWhen{ false }
+//  from( 'src/main/webapp/build' ){ exclude 'index.html', '**/*.txt', '**/*.map' }
+//  into "$buildDir/resources/main/webroot"
+//}
+//
+//task processIndex( type:Copy ) {
+//  dependsOn copyWebApp
+//  group 'node'
+//  description 'Replaces debug tokens in index.html'
+//  outputs.upToDateWhen{ false }
+//  from( 'src/main/webapp/build' ){ include 'index.html' }
+//  into "$buildDir/resources/main"
+//  filter{
+//    it.replaceAll( 'http://localhost:\\d+', '' )
+//      .replaceAll( '(href|src)="/', '$1="/static/' )
+//      .replaceAll( /window.projectVersion=['"]dev["']/, "window.projectVersion='$displayVersion'" )
+//      .replaceAll( /window.appversion=['"]dev["']/, "window.appversion='$versioning.info.build'" )
+//  }
+//}
+
 shadowJar.dependsOn copyWebApp

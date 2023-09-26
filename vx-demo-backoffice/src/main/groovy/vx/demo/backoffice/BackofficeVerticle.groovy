@@ -32,8 +32,6 @@ class BackofficeVerticle extends WebVerticle {
     
     MessageSource messageSource = new ResourceBundleMessageSource( defaultEncoding:'UTF-8', basename:'i18n.messages' )
     
-    Buffer indexHtml = Buffer.buffer getClass().getResource( '/webroot/index.html' ).text
-    
     enableCORS 'http://localhost:3010'
     
     router.route().handler BodyHandler.create()
@@ -54,8 +52,8 @@ class BackofficeVerticle extends WebVerticle {
     new SockJSBridge( vertx, router, sec )
     
     router.get '/static/*' handler StaticHandler.create().setDefaultContentEncoding( 'UTF-8' )
-    router.get '/*' handler{ it.end indexHtml }
-
+    router.get '/*' handler{ it.response().sendFile 'index.html' }
+    
     vertx.createHttpServer().requestHandler router listen HTTP, startPromise
   }
   
