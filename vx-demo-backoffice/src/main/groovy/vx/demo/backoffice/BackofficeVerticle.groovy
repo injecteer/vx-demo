@@ -46,7 +46,7 @@ class BackofficeVerticle extends WebVerticle {
     
     new LogEventController( router, messageSource )
     new UserController( router, messageSource )
-    new ConsoleController( router )
+    new ConsoleController( vertx, router )
     
     new SockJSBridge( vertx, router, sec )
     

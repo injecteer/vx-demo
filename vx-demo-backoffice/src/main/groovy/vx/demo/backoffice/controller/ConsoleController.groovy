@@ -2,6 +2,7 @@ package vx.demo.backoffice.controller
 
 import grails.gorm.transactions.Transactional
 import groovy.util.logging.Log4j
+import io.vertx.core.Vertx
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.RoutingContext
 import vx.demo.authorization.Grant
@@ -10,20 +11,20 @@ import vx.demo.gorm.Bootstrap
 import vx.demo.web.Controller
 
 @Log4j
-@Grant([ Permission.admin ])
 class ConsoleController implements Controller {
   
   private final String domainPackageImports
   
   private final GroovyShell groovyShell
   
-  ConsoleController( Router router ) {
+  ConsoleController( Vertx vertx, Router router ) {
     domainPackageImports = Bootstrap.instance.domainPackages.collect{ "import ${it}.*" }.join '\n'
-    groovyShell = new GroovyShell( getClass().classLoader )
+    groovyShell = new GroovyShell( getClass().classLoader, [ vertx:vertx ] as Binding )
     router.put '/api/console/execute' consumes JSON produces JSON blockingHandler this.&execute
   }
   
   @Transactional
+  @Grant([ Permission.admin ])
   void execute( RoutingContext rc ) {
     Map params = params rc
     

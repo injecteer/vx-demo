@@ -58,7 +58,6 @@ class SockJSBridge implements Handler<BridgeEvent> {
                 socket.routingContext().user = user
                 id = user.principal().map.id
                 registeredUsers[ id ] = [ address ]
-                event.complete true
               }else{
                 log.warn "auth fail ${it.cause()}"
                 socket.end Buffer.buffer( 'Bad authorization' )
@@ -71,17 +70,14 @@ class SockJSBridge implements Handler<BridgeEvent> {
             registeredUsers[ id ]?.remove address
             if( !registeredUsers[ id ] ) registeredUsers.remove id
           }
-          event.complete true
           break
           
         case SOCKET_CLOSED:
           if( id ) registeredUsers.remove id
-          event.complete true
           break
-          
-        default:
-          event.complete true
       }
+      
+      event.complete true
     }catch( Throwable t ){
       log.error 'oops', t 
       socket.end Buffer.buffer( t.message )

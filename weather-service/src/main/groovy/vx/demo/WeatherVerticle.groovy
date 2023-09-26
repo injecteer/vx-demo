@@ -1,5 +1,7 @@
 package vx.demo
 
+import static io.vertx.core.json.JsonObject.mapFrom
+
 import grails.gorm.transactions.Transactional
 import groovy.transform.TypeChecked
 import io.vertx.core.AsyncResult
@@ -53,7 +55,9 @@ class WeatherVerticle extends WebVerticle {
     else
       msg.fail 400, ar.cause().message
       
-    new LogEvent( 'weather', ar.succeeded() ).save()
+    var le = new LogEvent( 'weather', ar.succeeded() ).save()
+    
+    vertx.eventBus().publish 'weather.called', mapFrom( type:'LogEvent', id:le.id )
   }
   
   @Override
