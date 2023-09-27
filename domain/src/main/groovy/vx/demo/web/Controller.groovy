@@ -7,6 +7,7 @@ import org.springframework.validation.FieldError
 import io.vertx.core.http.HttpServerRequest
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.RoutingContext
+import vx.demo.domain2.User
 
 /**
  * Contains convenience methods for response rendering
@@ -76,6 +77,15 @@ trait Controller {
         o = JsonObject.mapFrom o
     }
     rc.json o as JsonObject
+  }
+  
+  User getUser( RoutingContext rc ) {
+    Map principal = rc.user().principal().map
+    new User( id:principal.id, permissions:principal.permissions as List<String> )
+  }
+  
+  User loadUser( RoutingContext rc ) {
+    User.get rc.user().principal().map.id
   }
   
   List errors2messages( GormEntity o ) {

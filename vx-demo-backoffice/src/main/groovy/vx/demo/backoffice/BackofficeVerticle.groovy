@@ -12,8 +12,6 @@ import io.vertx.ext.web.handler.ErrorHandler
 import io.vertx.ext.web.handler.FaviconHandler
 import io.vertx.ext.web.handler.ResponseContentTypeHandler
 import io.vertx.ext.web.handler.StaticHandler
-import io.vertx.ext.web.handler.sockjs.SockJSBridgeOptions
-import io.vertx.ext.web.handler.sockjs.SockJSHandler
 import vx.demo.backoffice.controller.ConsoleController
 import vx.demo.backoffice.controller.LogEventController
 import vx.demo.backoffice.controller.SecurityController
@@ -36,7 +34,7 @@ class BackofficeVerticle extends WebVerticle {
     
     router.route().handler BodyHandler.create()
     router.route().handler ResponseContentTypeHandler.create()
-    router.route().handler FaviconHandler.create( vertx, 'webroot/favicon.ico' )
+    router.route().handler FaviconHandler.create( vertx, '/webroot/favicon.ico' )
     router.route().failureHandler{
       log.error "${it.request().method()}:${it.normalizedPath()}", it.failure()
       it.next()
@@ -51,8 +49,10 @@ class BackofficeVerticle extends WebVerticle {
     
     new SockJSBridge( vertx, router, sec )
     
+    Buffer indexHtml = Buffer.buffer getClass().getResource( '/index.html' ).text
+    
     router.get '/static/*' handler StaticHandler.create().setDefaultContentEncoding( 'UTF-8' )
-    router.get '/*' handler{ it.response().sendFile 'index.html' }
+    router.get '/*' handler{ it.end indexHtml }
     
     vertx.createHttpServer().requestHandler router listen HTTP, startPromise
   }

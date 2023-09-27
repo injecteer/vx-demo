@@ -1,5 +1,6 @@
 package vx.demo
 
+import static io.vertx.core.json.JsonObject.mapFrom
 import org.springframework.context.MessageSource
 import org.springframework.context.support.ResourceBundleMessageSource
 
@@ -44,6 +45,7 @@ class DemoVerticle extends WebVerticle implements Controller {
       it.next()
     }
     
+    router.get '/api/time/:user/:zone' produces JSON handler this::time
     router.get '/api/time/:zone' produces JSON handler this::time
     router.get '/api/time' produces JSON handler this.&time
     
@@ -57,7 +59,7 @@ class DemoVerticle extends WebVerticle implements Controller {
   }
   
   void time( RoutingContext rc ) {
-    pipe2http 'time', rc.pathParam( 'zone' ) ?: 'GMT', rc
+    pipe2http 'time', mapFrom( zone:rc.pathParam( 'zone' ) ?: 'GMT', user:rc.pathParam( 'user' )?.toLong() ), rc
   }
   
   void pipe2http( String addr, o, RoutingContext rc ) {

@@ -1,12 +1,12 @@
-import React from "react"
+import React, { createRef, useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import { Switch, Route, Redirect, withRouter } from 'react-router'
 import axios from 'axios'
-import { MdCircle, MdMenu } from 'react-icons/md'
+import { MdMenu, MdNotificationsNone } from 'react-icons/md'
 import 'uikit/dist/css/uikit.min.css'
 import 'uikit/dist/js/uikit.min.js'
 
-import { isAuthenticated, IsAuthenticated, IsGranted, hasPermission, setUser, setAuthorization, clearAuth } from "./auth/Authorization"
+import { isAuthenticated, IsAuthenticated, IsGranted, hasPermission, setUser, setAuthorization, clearAuth, getUser } from "./auth/Authorization"
 
 import Auth from "./auth/Auth"
 import Console from "./Console"
@@ -16,10 +16,11 @@ import UserEdit from "./UserEdit"
 import { ForgotPassword } from "./auth/ForgotPassword"
 import cogoToast from "cogo-toast"
 import EventBusBridge from "./EventBusBridge"
+import LogEventsList from "./LogEventsList"
 
 class Main extends React.Component {
   
-  eventBus = null
+  logEventRef = createRef()
 
   state = { status:false }
 
@@ -54,33 +55,29 @@ class Main extends React.Component {
       _ => this.setState( { status:true } ), 
       {
         'weather.called':( error, msg ) => {
-          const { type, id } = msg.body
+          const { id } = msg.body
           cogoToast.warn( <><b>weather.called</b> -&gt; New Id <b>{id}</b></> )
-          this.setState( { clazz:'scaleUpDown', [type]:type + '.' + id } )
-          setTimeout( _ => this.setState( { clazz:'' } ), 1100 )
+          this.setState( { blink:id } )
         },
-        'logevent.changed':( error, msg ) => {
-          const { type, id } = msg.body
-          cogoToast.info( <><b>logevent.changed</b> -&gt; New Id <b>{id}</b></> )
-          this.setState( { clazz:'scaleUpDown', [type]:type + '.' + id } )
-          setTimeout( _ => this.setState( { clazz:'' } ), 1100 )
+        ['user.' + getUser().id]:( error, msg ) => {
+          const { id } = msg.body
+          cogoToast.info( <><b>user.{getUser().id}</b> -&gt; New Id <b>{id}</b></> )
+          console.info( this.props.location )
+          if( '/logEvents' === this.props.location.pathname ) 
+            this.logEventRef.current?.load( 0 )
+          else
+            this.setState( { blink:id } )
         },
       },
       _ => this.setState( { status:true } )
     )
   }
 
-  LogEventsList = _ => <List key={this.state.LogEvent} noSearch object="LogEvent" readonly columns={[ 'id', 'what', 'success', e => [ 'created', <FancyDate time={e.dateCreated}/> ] ]}/>
-  
   render() {
-    const { status, clazz } = this.state
-    
-    const color = null === status ? 'gray' : ( status ? 'green' : 'red' )
-    
     return <div>
       <div className="mainMenu uk-margin-right uk-margin-top">
         <IsAuthenticated>
-          <MdCircle size="2em" color={color} onClick={this.connectEventBusBridge} className={'pointer uk-margin-right ' + clazz}/>
+          <StatusIndicator {...this.state}/>
           <MdMenu size="2em"/>
           <div data-uk-dropdown="mode: hover">
             <ul className="uk-nav uk-dropdown-nav">
@@ -102,6 +99,7 @@ class Main extends React.Component {
             </IsGranted>
             <IsGranted all="kunde">
               <MenuItem to="/logEvents" exact label="Log Events"/>
+              {/* <MenuItem to="/myLogEvents" exact label="Log Events"/> */}
             </IsGranted>
 
           </ul>
@@ -115,14 +113,12 @@ class Main extends React.Component {
 
             <PrivateRoute path="/" exact render={_ => <h1>Main page</h1>} />
 
-            <PrivateRoute path="/users/:offset" role="superuser" exact component={UserList}/>
             <PrivateRoute path="/users" role="superuser" exact component={UserList}/>
             <PrivateRoute path="/user/edit/:id" role="superuser" exact component={UserEdit}/>
 
             <PrivateRoute path="/console" role="admin" exact component={Console} />
 
-            <PrivateRoute path="/logEvents/:offset" role="kunde" exact component={this.LogEventsList} />
-            <PrivateRoute path="/logEvents" role="kunde" exact component={this.LogEventsList} />
+            <PrivateRoute path="/logEvents" role="kunde" exact render={_ => <LogEventsList ref={this.logEventRef} />} />
 
             <Route path="/403" render={_ => <h1>Not Authorized</h1>} />
             <Route render={_ => <h1>Not found</h1>} />
@@ -162,4 +158,23 @@ const UserList = props => <List object="User" {...props} readonly noSearch colum
   u => [ 'Birth date', <FancyDate time={u.birthDate}/> ],
   u => [ 'created', <FancyDate time={u.dateCreated}/> ], 
   u => [ 'updated', <FancyDate time={u.lastUpdated}/> ], 
-]}/>
+]}/> 
+
+const StatusIndicator = ({ status, blink }) => {
+  const [ className, setClassName ] = useState( '' )
+
+  const [ count, setCount ] = useState( -1 )
+  
+  useEffect( _ => {
+    setClassName( 'scaleUpDown' )
+    setCount( c => c + 1 )
+    setTimeout( _ => setClassName( '' ), 1100 )
+  }, [ blink ] )
+
+  return <div className={'pointer uk-margin-right ' + className}>
+    <Link to="/logEvents" onClick={_ => setCount( 0 )}>
+      <MdNotificationsNone size="2.4em" color="black"/>
+      {status && !!count && <span className="uk-badge" style={{ marginLeft:'-1.6em' }}>{100 > count ? count : '99+'}</span>}
+    </Link>
+  </div>
+}

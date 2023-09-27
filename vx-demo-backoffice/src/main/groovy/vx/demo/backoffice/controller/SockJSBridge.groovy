@@ -37,7 +37,7 @@ class SockJSBridge implements Handler<BridgeEvent> {
   
   @Override
   void handle( BridgeEvent event ) {
-    if( SOCKET_PING != event.type() ) log.info "got type ${event.type()} -> ${event.rawMessage}"
+//    if( SOCKET_PING != event.type() ) log.info "got type ${event.type()} -> ${event.rawMessage}"
     
     SockJSSocket socket = event.socket()
 

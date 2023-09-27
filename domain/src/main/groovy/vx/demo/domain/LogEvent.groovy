@@ -6,14 +6,17 @@ import com.fasterxml.jackson.annotation.JsonFormat
 
 import grails.gorm.annotation.Entity
 import groovy.transform.TupleConstructor
+import vx.demo.domain2.User
 
 @Entity
-@TupleConstructor( excludes=[ 'id' ] )
+@TupleConstructor( includes=[ 'what', 'success', 'user' ] )
 class LogEvent implements GormEntity<LogEvent> {
   
   long id
   
   String what
+  
+  User user
   
   boolean success
   
@@ -22,5 +25,6 @@ class LogEvent implements GormEntity<LogEvent> {
   
   static constraints = {
     what inList:[ 'time', 'weather' ]
+    user nullable:true
   }
 }

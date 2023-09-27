@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { PureComponent } from 'react'
 import axios from 'axios'
 import { Link } from "react-router-dom"
 import { PulseLoader } from 'react-spinners'
@@ -9,7 +9,7 @@ import { BackArrow } from './Misc'
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from 'react-icons/md'
 import { useQuery } from '@tanstack/react-query'
 
-export default class List extends Component {
+export default class List extends PureComponent {
   
   columns = null
 
@@ -26,6 +26,7 @@ export default class List extends Component {
   state = { list:[], count:0, offset:0, loading:true, query:{ query:'' } }
   
   componentDidMount() {
+    console.info( 'list mounted', this.object ?? this.props.object )
     const { list, match } = this.props
     if( list )
       this.setState( { list, count:list.length, loading:false } ) 
@@ -37,11 +38,13 @@ export default class List extends Component {
 
   load = offset => {
     if( this.props.list ) return
+
+    this.setState( { loading:true } )
     const object = this.object ?? this.props.object
     const max = this.max ?? this.props.max ?? 20
     const obj = object[ 0 ].toLowerCase() + object.substring( 1 )
-    if( this.props.history ) this.props.history.replace( `/${obj}s/${offset}` )
-    const params = { offset, max, ...this.state.query }
+    const { query } = this.state
+    const params = { offset, max, ...query }
     const axs = this.axiosInstance ?? this.props.axios ?? axios
     
     // const { isLoading, isError, error, data, isFetching, isPreviousData } = useQuery( {
@@ -50,7 +53,7 @@ export default class List extends Component {
     //   keepPreviousData:true
     // } )
     // this.setState( { ...data, offset, loading:isLoading } )
-    axs.post( `/api/${obj}s`, params ).then( resp => this.setState( { ...resp.data, offset, loading:false } ) ).finally( _ => this.setState( { loading:false } ) )
+    axs.post( `/api/${obj}s`, params ).then( resp => this.setState( { ...resp.data, offset } ) ).finally( _ => this.setState( { loading:false } ) )
   }
   
   handleQueryChange = ({ currentTarget }) => {
@@ -81,7 +84,7 @@ export default class List extends Component {
   }
   
   resetSearch = e => {
-    e.preventDefault()
+    e?.preventDefault()
     const { query } = this.state
     query.query = ''
     this.setState( { query }, _ => this.search() )
@@ -93,7 +96,7 @@ export default class List extends Component {
   }
 
   submitSearch = e => {
-    e.preventDefault()
+    e?.preventDefault()
     this.search()
   }
 
@@ -101,8 +104,6 @@ export default class List extends Component {
     const { object, columns, linkPath } = { ...this, ...this.props }
     const { loading, count, offset } = this.state
     const list = this.props.list ?? this.state.list
-
-    console.info( 'rendering list', object, loading )
 
     const obj = object[ 0 ].toLowerCase() + object.substring( 1 )
     
