@@ -67,7 +67,7 @@ class WebVerticle extends AbstractVerticle {
         log.info "Java version   :: ${Runtime.version()}"
         log.info "Groovy version :: $GroovySystem.version"
         log.info "Vert.X version :: $VersionCommand.version"
-        log.info "Environment    :: ${WebEnvironment.mode()}"
+        log.info "Environment    :: ${WebEnvironment.mode()}  "
       }
       
       var hco = getClass().getAnnotationsByType HealthCheckOnly
@@ -90,10 +90,10 @@ class WebVerticle extends AbstractVerticle {
    * Initializes CORS Handling for dev-mode only
    * @param origin
    */
-  protected void enableCORS( String origin ){
+  protected void enableCORS( String origin, Router rtr = router ){
     if( !WebEnvironment.development() ) return
     CorsHandler cors = CorsHandler.create().addOrigin origin allowCredentials true allowedMethods CORS_METHODS allowedHeaders CORS_HEADERS exposedHeaders CORS_HEADERS
-    router.route().handler cors
+    rtr.route().order( -200 ).handler cors
     log.info "CORS enabled -> $origin" 
   }
   

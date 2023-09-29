@@ -2,7 +2,9 @@ package vx.demo.backoffice.controller
 
 import static groovy.transform.TypeCheckingMode.SKIP
 
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.MessageSource
+import org.springframework.stereotype.Component
 
 import grails.gorm.transactions.Transactional
 import groovy.transform.TypeChecked
@@ -17,27 +19,29 @@ import io.vertx.ext.auth.jwt.JWTAuth
 import io.vertx.ext.auth.jwt.JWTAuthOptions
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.RoutingContext
-import vx.demo.domain2.Permission
+import io.vertx.ext.web.handler.SecurityPolicyHandler
 import vx.demo.domain2.User
 import vx.demo.web.Binder
 import vx.demo.web.SecurityControllerBase
 
+@Component
 class SecurityController extends SecurityControllerBase {
 
   JWTAuth jwtAuth
   
   private final Binder binder = new Binder( User )
   
+  @Autowired
   SecurityController( Vertx vertx, Router router, Map cfg, MessageSource messageSource ) {
-    super( cfg, messageSource )
+    super( cfg.security, messageSource )
 
     JWTAuthOptions opts = new JWTAuthOptions( pubSecKeys:[ new PubSecKeyOptions( config.pubSecKeys ) ] )
     jwtAuth = JWTAuth.create vertx, opts
 
-    router.route '/api/*' handler this.&checkAuth
-    router.post '/api/pub/register' consumes JSON produces JSON handler this::register
-    router.post '/api/pub/login' consumes JSON produces JSON handler this::login
-    router.post '/api/pub/forgotPassword' consumes JSON produces JSON handler this::forgotPassword
+    router.route '/*' order -100 handler this.&checkAuth
+    router.post '/pub/register' consumes JSON produces JSON handler this::register
+    router.post '/pub/login' consumes JSON produces JSON handler this::login
+    router.post '/pub/forgotPassword' consumes JSON produces JSON handler this::forgotPassword
   }
   
   @Transactional

@@ -28,7 +28,7 @@ abstract class SecurityControllerBase implements Controller {
   
   static class Config {
     
-    String skip = '/api/pub/'
+    String skip = '/pub/'
 
     int sessionDuration
     
@@ -59,7 +59,7 @@ abstract class SecurityControllerBase implements Controller {
     String authorization = rc.request().getHeader( 'authorization' )?.trim()
     
     if( !authorization?.startsWith( 'Bearer ' ) ){
-      err rc, null, 401
+      noAuth rc
       return
     }
     

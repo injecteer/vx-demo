@@ -4,6 +4,9 @@ import static io.vertx.ext.bridge.BridgeEventType.*
 
 import java.util.concurrent.ConcurrentHashMap
 
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.stereotype.Component
+
 import groovy.util.logging.Log4j
 import io.vertx.core.Handler
 import io.vertx.core.Vertx
@@ -17,6 +20,7 @@ import io.vertx.ext.web.handler.sockjs.SockJSHandler
 import io.vertx.ext.web.handler.sockjs.SockJSSocket
 
 @Log4j
+@Component
 class SockJSBridge implements Handler<BridgeEvent> {
   
   static final SockJSBridgeOptions SOCKJS_OPTS = new SockJSBridgeOptions( pingTimeout:90_000 )
@@ -27,12 +31,13 @@ class SockJSBridge implements Handler<BridgeEvent> {
   
   Map<Long,List<String>> registeredUsers = new ConcurrentHashMap<>()
   
-  SockJSBridge( Vertx vertx, Router router, SecurityController securityController ) {
+  @Autowired
+  SockJSBridge( Vertx vertx, Router mainRouter, SecurityController securityController ) {
     this.securityController = securityController
     
     Router sjh = SockJSHandler.create vertx bridge SOCKJS_OPTS, this
     
-    router.route '/eventbus/*' subRouter sjh 
+    mainRouter.route '/eventbus/*' subRouter sjh 
   }
   
   @Override

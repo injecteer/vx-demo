@@ -1,23 +1,25 @@
 package vx.demo.web
 
-
+import org.apache.log4j.Logger
 import org.grails.datastore.gorm.GormEntity
 import org.springframework.context.MessageSource
 
 import grails.gorm.transactions.Transactional
-import groovy.util.logging.Log4j
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.RoutingContext
 
-@Log4j
 abstract class CRUDController<T extends GormEntity> implements Controller {
   
   final Class<T> clazz
   
   final Binder binder
   
+  protected Logger log
+  
   @SafeVarargs
   CRUDController( Router router, MessageSource messageSource, Class<?>... classes ) {
+    log = Logger.getLogger getClass()
+    
     this.messageSource = messageSource
     
     clazz = classes[ 0 ]
@@ -31,13 +33,13 @@ abstract class CRUDController<T extends GormEntity> implements Controller {
   
   void registerMappings( Router router, String name, String namePlural ) {
     if( !router ) return
-    router.post "/api/$namePlural" produces JSON handler this::list
-    router.get "/api/$name/:id/:props" produces JSON handler this.&details
-    router.get "/api/$name/:id/" produces JSON handler this.&details
-    router.get "/api/$name/:id" produces JSON handler this.&details
-    router.post "/api/$name/:id" consumes JSON produces JSON handler this.&save
-    router.post "/api/$name" consumes JSON produces JSON handler this.&save
-    router.delete "/api/$name/:id" handler this.&delete
+    router.post "/$namePlural" produces JSON handler this::list
+    router.get "/$name/:id/:props" produces JSON handler this.&details
+    router.get "/$name/:id/" produces JSON handler this.&details
+    router.get "/$name/:id" produces JSON handler this.&details
+    router.post "/$name/:id" consumes JSON produces JSON handler this.&save
+    router.post "/$name" consumes JSON produces JSON handler this.&save
+    router.delete "/$name/:id" handler this.&delete
   }
   
   @Transactional

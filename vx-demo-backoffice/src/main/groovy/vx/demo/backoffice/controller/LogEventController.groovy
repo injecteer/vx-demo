@@ -1,6 +1,8 @@
 package vx.demo.backoffice.controller
 
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.MessageSource
+import org.springframework.stereotype.Component
 
 import grails.gorm.transactions.Transactional
 import io.vertx.ext.web.Router
@@ -11,9 +13,11 @@ import vx.demo.domain2.Permission
 import vx.demo.domain2.User
 import vx.demo.web.CRUDController
 
+@Component
 @Grant( [ Permission.kunde ] )
 class LogEventController extends CRUDController<LogEvent> {
   
+  @Autowired
   LogEventController( Router router, MessageSource messageSource ){
     super( router, messageSource, LogEvent )
   }
@@ -30,7 +34,9 @@ class LogEventController extends CRUDController<LogEvent> {
     User u = getUser rc
     
     def list = LogEvent.createCriteria().list{
-      if( my ) user{ eq 'id', u.id }
+      if( my ) user{ 
+        eq 'id', u.id 
+      }
       if( successful ) eq 'success', true
       if( whats ) 'in' 'what', whats
       

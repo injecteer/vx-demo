@@ -1,5 +1,8 @@
 package vx.demo.backoffice.controller
 
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.stereotype.Component
+
 import grails.gorm.transactions.Transactional
 import groovy.util.logging.Log4j
 import io.vertx.core.Vertx
@@ -11,16 +14,18 @@ import vx.demo.gorm.Bootstrap
 import vx.demo.web.Controller
 
 @Log4j
+@Component
 class ConsoleController implements Controller {
   
   private final String domainPackageImports
   
   private final GroovyShell groovyShell
   
+  @Autowired
   ConsoleController( Vertx vertx, Router router ) {
     domainPackageImports = Bootstrap.instance.domainPackages.collect{ "import ${it}.*" }.join '\n'
     groovyShell = new GroovyShell( getClass().classLoader, [ vertx:vertx ] as Binding )
-    router.put '/api/console/execute' consumes JSON produces JSON blockingHandler this.&execute
+    router.put '/console/execute' consumes JSON produces JSON blockingHandler this.&execute
   }
   
   @Transactional

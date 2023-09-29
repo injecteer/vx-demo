@@ -10,8 +10,24 @@ dependencies {
 
 jar {
   manifest {
-    attributes 'Main-Class':'io.vertx.core.Starter'
-    attributes 'Main-Verticle':verticleName
+    attributes 'Main-Class':'io.vertx.core.Starter', 'Main-Verticle':verticleName
+  }
+}
+
+String devJarName = "$project.name-$project.version-dev.jar"
+
+task devJar( type:Jar ) {
+  group 'build'
+  description 'Builds a jar file with development mode content and settings'
+  dependsOn classes
+  archiveFileName = devJarName
+  duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+  from sourceSets.main.output
+  from{
+    configurations.compileClasspath.findAll{ it.absolutePath.startsWith rootDir.absolutePath }.collect{ zipTree it }
+  }
+  manifest {
+    attributes 'Main-Class':'io.vertx.core.Starter', 'Main-Verticle':verticleName
   }
 }
 
@@ -45,6 +61,8 @@ applicationDefaultJvmArgs = [
 ]
 
 run {
+  dependsOn devJar
+  classpath = configurations.runtimeClasspath.filter{ !it.absolutePath.startsWith( rootDir.absolutePath ) } + files( "$buildDir/libs/$devJarName" )
   mainClassName = 'io.vertx.core.Launcher'
   args 'run', verticleName, '-Dvertxweb.environment=dev', '-cluster'
 //  jvmArgs '-Xdebug', '-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5022'

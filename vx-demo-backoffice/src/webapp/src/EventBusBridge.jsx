@@ -11,8 +11,10 @@ export default class EventBusBridge {
   static connect( onConnect, handlers, onClose ) {
     if( this.eventBus ) return
     
-    this.eventBus = new EventBus( axios.defaults.baseURL + '/eventbus', { vertxbus_ping_interval:30000 } )
+    this.eventBus = new EventBus( axios.defaults.baseURL + '/eventbus', { vertxbus_reconnect_delay_min:30000, vertxbus_ping_interval:60000 } )
     
+    this.eventBus.enableReconnect( true )
+
     this.eventBus.onopen = _ => {
       onConnect()
       Object.entries( handlers ).forEach( ([ address, func ]) => this.eventBus?.registerHandler( address, { authorization:getAuthorisation() }, func ) )

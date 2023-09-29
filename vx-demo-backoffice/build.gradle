@@ -5,6 +5,7 @@ plugins {
 
 dependencies {
   implementation "io.vertx:vertx-auth-jwt:$vertxVersion"
+  implementation 'org.springframework:spring-context:5.3.30'
 }
 
 task yarnBuild( type:YarnTask ) {

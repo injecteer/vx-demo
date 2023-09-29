@@ -2,7 +2,7 @@ import React, { createRef, useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import { Switch, Route, Redirect, withRouter } from 'react-router'
 import axios from 'axios'
-import { MdMenu, MdNotificationsNone } from 'react-icons/md'
+import { MdMenu, MdNotificationsNone, MdOutlineNotificationsOff } from 'react-icons/md'
 import 'uikit/dist/css/uikit.min.css'
 import 'uikit/dist/js/uikit.min.js'
 
@@ -22,14 +22,18 @@ class Main extends React.Component {
   
   logEventRef = createRef()
 
-  state = { status:false }
+  state = { status:false, blink:null, reset:false }
 
   componentDidMount() {
     if( isAuthenticated() ) this.connectEventBusBridge()
+    this.unlisten = this.props.history.listen( location => {
+      if( '/logEvents' === location.pathname ) this.setState( { reset:true } )
+    } )
   }
 
   componentWillUnmount() {
     EventBusBridge.close()
+    this.unlisten()
   }
 
   logout = _ => {
@@ -57,19 +61,18 @@ class Main extends React.Component {
         'weather.called':( error, msg ) => {
           const { id } = msg.body
           cogoToast.warn( <><b>weather.called</b> -&gt; New Id <b>{id}</b></> )
-          this.setState( { blink:id } )
+          this.setState( { blink:id, reset:false } )
         },
         ['user.' + getUser().id]:( error, msg ) => {
           const { id } = msg.body
           cogoToast.info( <><b>user.{getUser().id}</b> -&gt; New Id <b>{id}</b></> )
-          console.info( this.props.location )
           if( '/logEvents' === this.props.location.pathname ) 
             this.logEventRef.current?.load( 0 )
           else
-            this.setState( { blink:id } )
+            this.setState( { blink:id, reset:false } )
         },
       },
-      _ => this.setState( { status:true } )
+      _ => this.setState( { status:false } )
     )
   }
 
@@ -99,7 +102,6 @@ class Main extends React.Component {
             </IsGranted>
             <IsGranted all="kunde">
               <MenuItem to="/logEvents" exact label="Log Events"/>
-              {/* <MenuItem to="/myLogEvents" exact label="Log Events"/> */}
             </IsGranted>
 
           </ul>
@@ -160,20 +162,24 @@ const UserList = props => <List object="User" {...props} readonly noSearch colum
   u => [ 'updated', <FancyDate time={u.lastUpdated}/> ], 
 ]}/> 
 
-const StatusIndicator = ({ status, blink }) => {
+const StatusIndicator = ({ status, blink, reset }) => {
   const [ className, setClassName ] = useState( '' )
 
   const [ count, setCount ] = useState( -1 )
   
   useEffect( _ => {
-    setClassName( 'scaleUpDown' )
-    setCount( c => c + 1 )
-    setTimeout( _ => setClassName( '' ), 1100 )
-  }, [ blink ] )
+    if( reset ){
+      setCount( 0 )
+    }else{
+      setCount( c => c + 1 )
+      setClassName( 'scaleUpDown' )
+      setTimeout( _ => setClassName( '' ), 1100 )
+    }
+  }, [ blink, reset ] )
 
   return <div className={'pointer uk-margin-right ' + className}>
     <Link to="/logEvents" onClick={_ => setCount( 0 )}>
-      <MdNotificationsNone size="2.4em" color="black"/>
+      {status ? <MdNotificationsNone size="2.4em" color="black"/> : <MdOutlineNotificationsOff size="2.4em" color="gray"/>}
       {status && !!count && <span className="uk-badge" style={{ marginLeft:'-1.6em' }}>{100 > count ? count : '99+'}</span>}
     </Link>
   </div>
