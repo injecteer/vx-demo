@@ -1,4 +1,0 @@
-plugins {
-  id 'vx.demo.groovy-common-conventions'
-  id 'java-library'
-}

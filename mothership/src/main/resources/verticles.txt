@@ -1,0 +1,4 @@
+vx.demo.DemoVerticle
+vx.demo.TimeVerticle
+vx.demo.WeatherVerticle
+vx.demo.backoffice.BackofficeVerticle

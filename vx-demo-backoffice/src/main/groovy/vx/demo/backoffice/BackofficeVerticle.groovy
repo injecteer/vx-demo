@@ -7,7 +7,6 @@ import org.springframework.context.support.GenericApplicationContext
 import groovy.transform.TypeChecked
 import io.vertx.core.Promise
 import io.vertx.core.buffer.Buffer
-import io.vertx.ext.web.Route
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.common.WebEnvironment
 import io.vertx.ext.web.handler.BodyHandler
@@ -40,8 +39,6 @@ class BackofficeVerticle extends WebVerticle {
     Router api = Router.router vertx
     initSpringCtx api
     router.route '/api/*' subRouter api
-    
-    log.info "routes:\n${api.routes.collect{ it.path + ' - ' + it.methods()?.first() }.join('\n')}"
     
     router.get '/static/*' handler StaticHandler.create().setDefaultContentEncoding( 'UTF-8' )
     

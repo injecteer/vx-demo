@@ -60,6 +60,7 @@ class WebVerticle extends AbstractVerticle {
     Map<String,Handler<Promise<Status>>> healthChecks2register = healthChecks()
     HealthChecks hc = HealthChecks.create vertx
     healthChecks2register.each{ k, h -> hc.register k, h }
+    router.get '/health' handler HealthCheckHandler.createWithHealthChecks( hc )
     
     if( isStandalone ){
       if( 1 == context.instanceCount || Thread.currentThread().name.endsWith( 'thread-2' ) ){
@@ -73,7 +74,6 @@ class WebVerticle extends AbstractVerticle {
       var hco = getClass().getAnnotationsByType HealthCheckOnly
       hcPort = hco ? hco.first().value() : 0
       if( hcPort ){
-        router.get '/health' handler HealthCheckHandler.createWithHealthChecks( hc )
         vertx.createHttpServer().requestHandler router listen hcPort
         log.info "registered ${healthChecks2register.size()} health check(-s) :$hcPort"
       }
@@ -84,6 +84,12 @@ class WebVerticle extends AbstractVerticle {
         hc.checkStatus{ it.succeeded() ? msg.reply( mapFrom( it.result().toJson() ) ) : msg.fail( 0, it.cause().message ) }
       }
     log.info 'starting ...'
+  }
+  
+  @Override
+  void stop() throws Exception {
+    log.info 'stopping ...'
+    super.stop()
   }
   
   /**

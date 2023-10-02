@@ -1,0 +1,28 @@
+plugins {
+  id 'com.github.node-gradle.node'
+}
+
+node {
+  download = false
+  version = '18.17.1'
+  npmVersion = ''
+  workDir = file "${project.projectDir}/.gradle/nodejs"
+  npmWorkDir = file "${project.projectDir}/.gradle/npm"
+  nodeProxySettings = ProxySettings.SMART
+}
+
+task yarnBuild( type:YarnTask ) {
+  group = 'node'
+  description = 'Builds production version of the webapp'
+  workingDir = file "$project.projectDir/src/webapp"
+  args = [ 'build' ]
+}
+
+task copyWebApp( type:Copy ) {
+  group 'node'
+  description 'Copies the react webapp into build dir'
+  dependsOn yarnBuild
+  outputs.upToDateWhen{ false }
+  from( 'src/webapp/build' ){ exclude 'index.html', '**/*.txt', '**/*.map' }
+  into "$buildDir/resources/main/webroot"
+}

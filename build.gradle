@@ -1,5 +1,5 @@
 plugins {
-  id 'vx.demo.groovy-node-conventions'
+  id 'vx.demo.node-conventions'
 }
 
 File markupFile = file './mermaid.md'
@@ -15,7 +15,7 @@ task projectGraphMarkup {
       boolean isLibrary = module.plugins.hasPlugin 'java-library'
       String icon = isLibrary ? '📚' : module.name.contains( 'mothership' ) ? '🗲🛸' : '🗲'
       projects << """$module.name["$icon $module.name"]"""
-      projects << """$module.name-info(["🛈 ${module.description.split( /\s/ ).collate( 5 )*.join( ' ' ).join( '<br>' )}"]):::ext"""
+      projects << """$module.name-info(["🛈 ${module.description.split( /\s/ ).collate( 5 )*.join( ' ' ).join( '<br>' ).replaceAll( /:(\d+)/, ' 🔌<b>$1</b>' )}"]):::ext"""
       links << "$module.name -.- $module.name-info"
       
       def extLinks = new TreeSet()

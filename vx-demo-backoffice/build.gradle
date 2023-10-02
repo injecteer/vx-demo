@@ -1,27 +1,11 @@
 plugins {
-  id 'vx.demo.groovy-application-conventions'
-  id 'vx.demo.groovy-node-conventions'
+  id 'vx.demo.application-conventions'
+  id 'vx.demo.node-conventions'
 }
 
 dependencies {
   implementation "io.vertx:vertx-auth-jwt:$vertxVersion"
   implementation 'org.springframework:spring-context:5.3.30'
-}
-
-task yarnBuild( type:YarnTask ) {
-  group = 'node'
-  description = 'Builds production version of the webapp'
-  workingDir = file "$project.projectDir/src/webapp"
-  args = [ 'build' ]
-}
-
-task copyWebApp( type:Copy ) {
-  group 'node'
-  description 'Copies the react webapp into build dir'
-  dependsOn yarnBuild
-  outputs.upToDateWhen{ false }
-  from( 'src/webapp/build' ){ exclude 'index.html', '**/*.txt', '**/*.map' }
-  into "$buildDir/resources/main/webroot"
 }
 
 task processIndex( type:Copy ) {

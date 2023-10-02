@@ -1,5 +1,5 @@
 plugins {
-	id 'vx.demo.groovy-common-conventions'
+	id 'vx.demo.common-conventions'
 	id 'application'
   id 'com.github.johnrengelman.shadow'
 }

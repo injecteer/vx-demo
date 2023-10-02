@@ -1,5 +1,6 @@
 plugins {
-  id 'vx.demo.groovy-application-conventions'
+  id 'vx.demo.application-conventions'
+  id 'vx.demo.node-conventions'
 }
 
 dependencies {
@@ -8,3 +9,40 @@ dependencies {
   implementation project( ':weather-service' )
   implementation project( ':vx-demo-backoffice' )
 }
+
+task verticles {
+  group 'application'
+  description 'Creates a list of verticle class names based on project dependencies'
+  
+  doLast{
+    List projNames = configurations.implementation.dependencies.findResults{
+      it.dependencyProject.plugins.hasPlugin( 'java-library' ) ? null : "$it.name-${it.version}.jar".toString()
+    }
+    List verticles = []
+    configurations.compileClasspath.each{ dep ->
+      if( dep.name !in projNames ) return
+      resources.text.fromArchiveEntry( dep, 'META-INF/MANIFEST.MF' ).asReader().eachLine{
+        if( it.startsWith( 'Main-Verticle: ' ) ) verticles << it.substring( 15 )
+      }
+    }
+    File f = file "$projectDir/src/main/resources/verticles.txt"
+    f.createNewFile() 
+    f.text = verticles.join( '\n' )
+  }
+}
+
+task processIndex( type:Copy ) {
+  group 'node'
+  description 'Replaces debug tokens in index.html'
+  dependsOn copyWebApp
+  outputs.upToDateWhen{ false }
+  from( 'src/webapp/build' ){ include 'index.html' }
+  into "$buildDir/resources/main"
+  filter{
+    it.replaceAll( 'http://localhost:\\d+', '' )
+      .replaceAll( '(href|src)="/', '$1="/static/' )
+//      .replaceAll( /window.projectVersion=['"]dev["']/, "window.projectVersion='$displayVersion'" )
+  }
+}
+
+shadowJar.dependsOn processIndex

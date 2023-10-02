@@ -1,5 +1,5 @@
 plugins {
-  id 'vx.demo.groovy-library-conventions'
+  id 'vx.demo.library-conventions'
 }
 
 dependencies {

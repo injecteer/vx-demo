@@ -1,0 +1,13 @@
+.footer {
+  font-size: small;
+  color: #999;
+  margin-left: 1em;
+  padding:1em 0;
+  border-top: 1px solid #e5e5e5;
+}
+
+.pointer {
+  cursor: pointer;
+}
+
+#ct-container pre { border: none; }

@@ -1,3 +1,3 @@
 plugins {
-  id 'vx.demo.groovy-application-conventions'
+  id 'vx.demo.application-conventions'
 }
