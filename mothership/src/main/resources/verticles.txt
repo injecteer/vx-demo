@@ -1,4 +1,4 @@
-vx.demo.DemoVerticle
-vx.demo.TimeVerticle
-vx.demo.WeatherVerticle
-vx.demo.backoffice.BackofficeVerticle
+vx.demo.DemoVerticle >> The Application provides HTTP-endpoints on :8090 to call other clustered services over event-bus
+vx.demo.TimeVerticle >> The Application is based on Java and provides a current time formatting service over EB
+vx.demo.WeatherVerticle >> The Application provides a weather extraction service over EB
+vx.demo.backoffice.BackofficeVerticle >> The Application provides Backoffice on :8097 access to manage the entities of the Demo

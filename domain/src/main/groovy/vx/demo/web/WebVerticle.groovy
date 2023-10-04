@@ -51,6 +51,9 @@ class WebVerticle extends AbstractVerticle {
     
     router = Router.router vertx
     
+    var cors = getClass().getAnnotationsByType CORS
+    if( cors ) enableCORS cors.first().value()
+      
     DatabindCodec.mapper().configure SerializationFeature.FAIL_ON_EMPTY_BEANS, false
     
     isStandalone = !config().map.nonStandalone
@@ -64,11 +67,15 @@ class WebVerticle extends AbstractVerticle {
     
     if( isStandalone ){
       if( 1 == context.instanceCount || Thread.currentThread().name.endsWith( 'thread-2' ) ){
+        DatagramSocket socket = new DatagramSocket()
+        socket.connect InetAddress.getByName( '8.8.8.8' ), 10002
+        
         log.info getClass().getResource( '/banner.txt' ).text
         log.info "Java version   :: ${Runtime.version()}"
         log.info "Groovy version :: $GroovySystem.version"
         log.info "Vert.X version :: $VersionCommand.version"
-        log.info "Environment    :: ${WebEnvironment.mode()}  "
+        log.info "Environment    :: ${WebEnvironment.mode()}"
+        log.info "IP-Address     :: $socket.localAddress.hostAddress"
       }
       
       var hco = getClass().getAnnotationsByType HealthCheckOnly

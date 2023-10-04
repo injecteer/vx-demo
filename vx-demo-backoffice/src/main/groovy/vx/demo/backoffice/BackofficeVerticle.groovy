@@ -14,9 +14,11 @@ import io.vertx.ext.web.handler.ErrorHandler
 import io.vertx.ext.web.handler.FaviconHandler
 import io.vertx.ext.web.handler.ResponseContentTypeHandler
 import io.vertx.ext.web.handler.StaticHandler
+import vx.demo.web.CORS
 import vx.demo.web.WebVerticle
 
 @TypeChecked
+@CORS( 'http://localhost:3010' )
 class BackofficeVerticle extends WebVerticle {
 
   static final int HTTP = 8097
@@ -24,8 +26,6 @@ class BackofficeVerticle extends WebVerticle {
   @Override
   void start( Promise startPromise ) throws Exception {
     start()
-    
-    enableCORS 'http://localhost:3010'
     
     router.route().handler BodyHandler.create()
     router.route().handler ResponseContentTypeHandler.create()

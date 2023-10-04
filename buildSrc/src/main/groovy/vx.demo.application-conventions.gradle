@@ -10,7 +10,7 @@ dependencies {
 
 jar {
   manifest {
-    attributes 'Main-Class':'io.vertx.core.Starter', 'Main-Verticle':verticleName
+    attributes 'Main-Class':'io.vertx.core.Starter', 'Main-Verticle':verticleName, Description:project.description
   }
 }
 

@@ -21,15 +21,22 @@ task verticles {
     List verticles = []
     configurations.compileClasspath.each{ dep ->
       if( dep.name !in projNames ) return
+      String name, desc
       resources.text.fromArchiveEntry( dep, 'META-INF/MANIFEST.MF' ).asReader().eachLine{
-        if( it.startsWith( 'Main-Verticle: ' ) ) verticles << it.substring( 15 )
+        if( it.startsWith( 'Main-Verticle: ' ) ) name = it.substring 15
+        else if( it.startsWith( 'Description: ' ) ) desc = it.substring 13
+        else if( desc ) desc += it.trim()
       }
+      verticles << "$name >> $desc"
     }
     File f = file "$projectDir/src/main/resources/verticles.txt"
     f.createNewFile() 
     f.text = verticles.join( '\n' )
   }
 }
+
+jar.dependsOn verticles
+devJar.dependsOn verticles
 
 task processIndex( type:Copy ) {
   group 'node'
