@@ -11,7 +11,7 @@ Modal.setAppElement( '#root' )
 
 const queryClient = new QueryClient()
 
-axios.defaults.baseURL = window.hostUrl
+axios.defaults.baseURL = process.env.REACT_APP_SERVER
 axios.defaults.headers.common[ 'Content-Type' ] = 'application/json; charset=UTF-8'
 
 axios.defaults.headers.common.authorization = localStorage.getItem( 'authorization' )

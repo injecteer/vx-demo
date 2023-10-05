@@ -3,6 +3,8 @@ package vx.demo.domain2
 import org.grails.datastore.gorm.GormEntity
 import org.mindrot.jbcrypt.BCrypt
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+
 import grails.gorm.annotation.Entity
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.TupleConstructor
@@ -10,6 +12,7 @@ import groovy.transform.TupleConstructor
 @Entity
 @TupleConstructor( excludes=[ 'id' ] )
 @EqualsAndHashCode( includes=[ 'email', 'name' ] )
+@JsonIgnoreProperties( [ 'password', 'addressId', 'hibernateLazyInitializer', 'permissionMask', 'forcePasswordReset' ] )
 class User implements GormEntity<User> {
   
   long id

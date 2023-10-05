@@ -95,8 +95,8 @@ class WebVerticle extends AbstractVerticle {
   
   @Override
   void stop() throws Exception {
-    log.info 'stopping ...'
     super.stop()
+    log.info 'stopped'
   }
   
   /**

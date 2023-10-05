@@ -35,7 +35,7 @@ export default class Login extends Component {
 
           <Text label="Enter the PA55WORD" name="password" inputType="password" value={password} onChange={this.setValue( 'password' )}/>
 
-          <Boolean label="Remember Me" name="rememberMe" value={rememberMe} onChange={e => this.setState( { rememberMe:e.currentTarget.checked } )}/>
+          <Boolean label="Remember Me" name="rememberMe" defaultValue={rememberMe} onChange={e => this.setState( { rememberMe:e.currentTarget.checked } )}/>
         </fieldset>
 
         <div>

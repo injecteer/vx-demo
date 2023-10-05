@@ -11,7 +11,7 @@ export default class EventBusBridge {
   static connect( onConnect, handlers, onClose ) {
     if( this.eventBus ) return
     
-    this.eventBus = new EventBus( axios.defaults.baseURL + '/eventbus', { vertxbus_reconnect_delay_min:30000, vertxbus_ping_interval:60000 } )
+    this.eventBus = new EventBus( process.env.REACT_APP_SERVER + '/eventbus', { vertxbus_reconnect_delay_min:30000, vertxbus_ping_interval:60000 } )
     
     this.eventBus.enableReconnect( true )
 

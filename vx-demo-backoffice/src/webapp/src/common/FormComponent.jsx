@@ -65,7 +65,7 @@ export default class FormComponent extends Component {
     axios.post( `/api/${this.getModel()}${id ? '/' + id : ''}`, data ).then( resp => {
       cogoToast.info( this.state.values[ this.mainName ] + ' saved' )
       if( !id ) this.props.history.replace( `/${this.getModel()}/edit/${resp.data.id}` )
-    } ).catch( err => cogoToast.warn( 'string' == typeof err ? err: JSON.stringify( err.errors ) ) )
+    } ).catch( err => cogoToast.error( <>Errors<ul>{err?.data?.errors?.map( e => <li>{e}</li> )}</ul></>, { hideAfter:7 } ) )
   }
   
   getModel = _ => this.model[ 0 ].toLowerCase() + this.model.substring( 1 )

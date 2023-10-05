@@ -119,7 +119,7 @@ abstract class CRUDController<T extends GormEntity> implements Controller {
     }else{
       List errors = errors2messages o
       log.warn "save failed for $o: $errors"
-      err rc, 400, [ errors:errors ]
+      err rc, [ errors:errors ], 400
       false
     }
   }

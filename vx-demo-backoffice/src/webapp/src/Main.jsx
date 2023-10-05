@@ -17,6 +17,7 @@ import { ForgotPassword } from "./auth/ForgotPassword"
 import cogoToast from "cogo-toast"
 import EventBusBridge from "./EventBusBridge"
 import LogEventsList from "./LogEventsList"
+import LogEventEdit from "./LogEventEdit"
 
 class Main extends React.Component {
   
@@ -121,6 +122,7 @@ class Main extends React.Component {
             <PrivateRoute path="/console" role="admin" exact component={Console} />
 
             <PrivateRoute path="/logEvents" role="kunde" exact render={_ => <LogEventsList ref={this.logEventRef} />} />
+            <PrivateRoute path="/logEvent/edit/:id" role="kunde" exact component={LogEventEdit}/>
 
             <Route path="/403" render={_ => <h1>Not Authorized</h1>} />
             <Route render={_ => <h1>Not found</h1>} />

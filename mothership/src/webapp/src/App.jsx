@@ -22,7 +22,7 @@ export default class App extends Component {
   connect = _ => {
     if( SockJS.OPEN === this.sockJS?.readyState ) return
 
-    this.sockJS = new SockJS( window.hostUrl + '/ws' )
+    this.sockJS = new SockJS( process.env.REACT_APP_SERVER + '/ws' )
     this.sockJS.onopen = _ => this.setState( { state:this.sockJS.readyState } )
     this.sockJS.onclose = _ => this.setState( { state:this.sockJS?.readyState ?? SockJS.CLOSED } )
 
@@ -118,7 +118,7 @@ export default class App extends Component {
 
     return <div className="uk-container uk-width-3-5 uk-margin-top" role="main" data-uk-height-viewport="offset-top: true; offset-bottom: 6">
       
-      <h2><img src={window.logo_src} alt="logo" height="74" width="74" className="uk-margin-right"/>Verticles Dashboard <MdCircle className="pointer uk-margin-left" size=".6em" onClick={this.connect} color={SockJS.OPEN === state ? 'green' : 'red'} uk-tooltip={SockJS.OPEN === state ? 'Online' : 'Offline'}/></h2>
+      <h2><img src={process.env.PUBLIC_URL + '/favicon.png'} alt="logo" height="74" width="74" className="uk-margin-right"/>Mothership Dashboard <MdCircle className="pointer uk-margin-left" size=".6em" onClick={this.connect} color={SockJS.OPEN === state ? 'green' : 'red'} uk-tooltip={SockJS.OPEN === state ? 'Online' : 'Offline'}/></h2>
 
       <div className="uk-flex uk-flex-right uk-margin uk-width-5-6">
         <MdSave className="pointer uk-margin-left" onClick={this.storePreset} size="3em" uk-tooltip="Save run preset"/>

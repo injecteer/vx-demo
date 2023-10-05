@@ -35,6 +35,8 @@ class SecurityController extends SecurityControllerBase {
   SecurityController( Vertx vertx, Router router, Map cfg, MessageSource messageSource ) {
     super( cfg.security, messageSource )
 
+    config.skip = '/api/pub/'
+    
     JWTAuthOptions opts = new JWTAuthOptions( pubSecKeys:[ new PubSecKeyOptions( config.pubSecKeys ) ] )
     jwtAuth = JWTAuth.create vertx, opts
 

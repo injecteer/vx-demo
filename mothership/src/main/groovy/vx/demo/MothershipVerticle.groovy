@@ -120,7 +120,7 @@ class MothershipVerticle extends WebVerticle {
             String clazz = 'health' == cmd.command ? tuple.v1.simpleName : MothershipVerticle.simpleName
             vertx.eventBus().<JsonObject>request( "health-$clazz", null ){
               if( it.succeeded() )
-                socket.write mapFrom( type:'info', body:it.result().body() ).toBuffer()
+                socket.write mapFrom( type:'info', verticle:verticle ?: 'all', body:it.result().body() ).toBuffer()
               else
                 writeErr socket, verticle, it.cause()
             }

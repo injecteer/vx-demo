@@ -22,10 +22,12 @@ task verticles {
     configurations.compileClasspath.each{ dep ->
       if( dep.name !in projNames ) return
       String name, desc
-      resources.text.fromArchiveEntry( dep, 'META-INF/MANIFEST.MF' ).asReader().eachLine{
-        if( it.startsWith( 'Main-Verticle: ' ) ) name = it.substring 15
-        else if( it.startsWith( 'Description: ' ) ) desc = it.substring 13
-        else if( desc ) desc += it.trim()
+      resources.text.fromArchiveEntry( dep, 'META-INF/MANIFEST.MF' ).asReader().splitEachLine( ': ' ){ parts ->
+        switch( parts[ 0 ] ){
+          case 'Main-Verticle': name = parts[ 1 ]; break
+          case 'Description': desc = parts[ 1 ]; break
+          case { desc && 1 == parts.size() }: desc += parts[ 0 ].trim(); break
+        }
       }
       verticles << "$name >> $desc"
     }
@@ -37,19 +39,5 @@ task verticles {
 
 jar.dependsOn verticles
 devJar.dependsOn verticles
-
-task processIndex( type:Copy ) {
-  group 'node'
-  description 'Replaces debug tokens in index.html'
-  dependsOn copyWebApp
-  outputs.upToDateWhen{ false }
-  from( 'src/webapp/build' ){ include 'index.html' }
-  into "$buildDir/resources/main"
-  filter{
-    it.replaceAll( 'http://localhost:\\d+', '' )
-      .replaceAll( '(href|src)="/', '$1="/static/' )
-//      .replaceAll( /window.projectVersion=['"]dev["']/, "window.projectVersion='$displayVersion'" )
-  }
-}
 
 shadowJar.dependsOn processIndex

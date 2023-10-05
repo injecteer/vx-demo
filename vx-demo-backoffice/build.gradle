@@ -8,18 +8,4 @@ dependencies {
   implementation 'org.springframework:spring-context:5.3.30'
 }
 
-task processIndex( type:Copy ) {
-  group 'node'
-  description 'Replaces debug tokens in index.html'
-  dependsOn copyWebApp
-  outputs.upToDateWhen{ false }
-  from( 'src/webapp/build' ){ include 'index.html' }
-  into "$buildDir/resources/main"
-  filter{
-    it.replaceAll( 'http://localhost:\\d+', '' )
-      .replaceAll( '(href|src)="/', '$1="/static/' )
-//      .replaceAll( /window.projectVersion=['"]dev["']/, "window.projectVersion='$displayVersion'" )
-  }
-}
-
 shadowJar.dependsOn processIndex

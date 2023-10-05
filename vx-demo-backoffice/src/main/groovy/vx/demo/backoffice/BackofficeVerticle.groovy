@@ -36,9 +36,7 @@ class BackofficeVerticle extends WebVerticle {
     }
     router.route().failureHandler ErrorHandler.create( vertx, WebEnvironment.development() )
     
-    Router api = Router.router vertx
-    initSpringCtx api
-    router.route '/api/*' subRouter api
+    initSpringCtx()
     
     router.get '/static/*' handler StaticHandler.create().setDefaultContentEncoding( 'UTF-8' )
     
@@ -48,7 +46,9 @@ class BackofficeVerticle extends WebVerticle {
     vertx.createHttpServer().requestHandler router listen HTTP, startPromise
   }
 
-  private void initSpringCtx( Router api ) {
+  private void initSpringCtx() {
+    Router api = Router.router vertx
+    
     ApplicationContext parent = new GenericApplicationContext()
     
     parent.beanFactory.with{
@@ -58,11 +58,12 @@ class BackofficeVerticle extends WebVerticle {
       registerSingleton 'cfg', config
     }
     parent.refresh()
-    log.info "parent -> $parent.beanFactory.singletonNames"
 
-    ApplicationContext context = new ClassPathXmlApplicationContext( [ 'ctx.xml' ] as String[], parent )
-
-    log.info "beans:\n${context.beanDefinitionNames.join( '\n' )}"
+    var context = new ClassPathXmlApplicationContext( [ 'ctx.xml' ] as String[], parent )
+    
+    log.info "Spring context initialized with ${context.beanDefinitionNames.size()} beans"
+    
+    router.route '/api/*' subRouter api
   }
   
 }

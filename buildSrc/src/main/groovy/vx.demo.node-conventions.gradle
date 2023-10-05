@@ -26,3 +26,12 @@ task copyWebApp( type:Copy ) {
   from( 'src/webapp/build' ){ exclude 'index.html', '**/*.txt', '**/*.map' }
   into "$buildDir/resources/main/webroot"
 }
+
+task processIndex( type:Copy ) {
+  group 'node'
+  description 'Copies the index.html one level higher than other static resources'
+  dependsOn copyWebApp
+  outputs.upToDateWhen{ false }
+  from( 'src/webapp/build' ){ include 'index.html' }
+  into "$buildDir/resources/main"
+}
