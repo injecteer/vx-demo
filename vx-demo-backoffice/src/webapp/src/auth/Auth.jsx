@@ -3,7 +3,7 @@ import cogoToast from "cogo-toast"
 import Login from "./Login"
 import Register from "./Register"
 import { AuthContext } from "./Authorization"
-import { useHistory, useLocation } from "react-router-dom"
+import { useLocation, useNavigate } from "react-router-dom"
 
 export default _ => {
 
@@ -11,13 +11,13 @@ export default _ => {
 
   const { setUser } = useContext( AuthContext )
   
-  const history = useHistory()
+  const nav = useNavigate()
   let location = useLocation()
 
   const onAuthSuccess = resp => {
     const { user } = resp.data
     setUser( user )
-    history.replace( '/' )
+    nav.replace( '/' )
   }
 
   const onAuthFail = ({ data }) => cogoToast.error( <span>Login Failed - <strong>{data.message}</strong></span> )
@@ -30,7 +30,7 @@ export default _ => {
       </div>
       <div className="uk-margin-medium-top">
         {'login' === mode && <Login onAuthSuccess={onAuthSuccess} onAuthFail={onAuthFail}/>}
-        {'register' === mode && <Register history={history} location={location} onAuthSuccess={onAuthSuccess}/>}
+        {'register' === mode && <Register history={nav} location={location} onAuthSuccess={onAuthSuccess}/>}
       </div>
     </div>
   </div>

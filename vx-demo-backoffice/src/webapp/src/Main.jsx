@@ -1,6 +1,5 @@
 import React, { useContext } from "react"
-import { Link, useHistory } from "react-router-dom"
-import { Switch, Route, Redirect, withRouter } from 'react-router'
+import { Route, Routes, Navigate, useNavigate, Outlet, useLocation } from 'react-router'
 import { MdMenu } from 'react-icons/md'
 import 'uikit/dist/css/uikit.min.css'
 import 'uikit/dist/js/uikit.min.js'
@@ -17,18 +16,19 @@ import LogEventsList from "./logEvent/LogEventsList"
 import LogEventEdit from "./logEvent/LogEventEdit"
 import StatusIndicator from "./eventBus/StatusIndicator"
 import { EventBusContext } from "./eventBus/EventBusProvider"
+import { Link } from "react-router-dom"
 
-const Main = () => {
+export default () => {
   
   const { user, clearAuth } = useContext( AuthContext )
   
   const { newIds } = useContext( EventBusContext )
 
-  const history = useHistory()
+  const nav = useNavigate()
 
   const logout = _ => {
     clearAuth()
-    history.replace( '/auth' )
+    nav.navigate( '/auth' )
   }
 
   return <div>
@@ -52,35 +52,42 @@ const Main = () => {
       <IsAuthenticated>
         <ul className="uk-nav uk-nav-default" style={{ minWidth:'200px' }}>
           <IsGranted all="admin">
-            <MenuItem to="/console" exact label="Console"/>
+            <MenuItem to="/console" label="Console"/>
           </IsGranted>
           <IsGranted all="superuser">
-            <MenuItem to="/users" exact label="Users"/>
+            <MenuItem to="/users" label="Users"/>
           </IsGranted>
           <IsGranted all="kunde">
-            <MenuItem to="/logEvents" exact label={<>Log Events {!!newIds.length && <span className="uk-badge">{20 > newIds.length ? newIds.length : '20+'}</span>}</>}/>
+            <MenuItem to="/logEvents" label={<>Log Events {!!newIds.length && <span className="uk-badge">{20 > newIds.length ? newIds.length : '20+'}</span>}</>}/>
           </IsGranted>
         </ul>
       </IsAuthenticated>
 
       <div className="uk-container uk-width-expand uk-margin-top" role="main" data-uk-height-viewport="offset-top: true; offset-bottom: 6">
-        <Switch>
-          <Route path="/auth/forgotPassword" exact component={ForgotPassword} />
-          <Route path="/auth" exact component={Auth} />
+        <Routes>
+          <Route path="auth">
+            <Route path="forgotPassword" element={<ForgotPassword/>} />
+            <Route path="" element={<Auth/>} />
+          </Route>
 
-          <PrivateRoute path="/" exact render={_ => <h1>Main page</h1>} />
+          <Route element={<For role="superuser"/>}>
+            <Route path="users" element={<UserList/>}/>
+            <Route path="user/edit/:id" element={<UserEdit navigate={nav}/>}/>
+          </Route>
 
-          <PrivateRoute path="/users" role="superuser" exact component={UserList}/>
-          <PrivateRoute path="/user/edit/:id" role="superuser" exact component={UserEdit}/>
+          <Route element={<For role="admin"/>} >
+            <Route path="console" element={<Console/>} />
+          </Route>
 
-          <PrivateRoute path="/console" role="admin" exact component={Console} />
-
-          <PrivateRoute path="/logEvents" role="kunde" exact component={LogEventsList} />
-          <PrivateRoute path="/logEvent/edit/:id" role="kunde" exact component={LogEventEdit}/>
-
-          <Route path="/403" render={_ => <h1>Not Authorized</h1>} />
-          <Route render={_ => <h1>Not found</h1>} />
-        </Switch>
+          <Route element={<For role="kunde"/>}>
+            <Route path="logEvents" element={<LogEventsList/>} />
+            <Route path="logEvent/edit/:id" element={<LogEventEdit navigate={nav}/>}/>
+            <Route path="/" element={<h1>Main page</h1>} /> 
+          </Route>
+       
+          <Route path="403" element={<h1>Not Authorized</h1>} />
+          <Route path="*" element={<h1>Not found</h1>} />
+        </Routes>
       </div>
     </div>
 
@@ -88,26 +95,17 @@ const Main = () => {
   </div>
 }
 
-export default withRouter( Main )
+const MenuItem = ({ label, to }) => {
+  const location = useLocation()
+  const single = to.substring( 0, to.length - 1 ) + '/'
+  const selected = location.pathname.startsWith( to ) || location.pathname.startsWith( single )
+  return <li className={selected ? 'uk-active' : ''}><Link to={to}>{label}</Link></li>
+}
 
-const MenuItem = ({ label, to, clazz, regex, ...rest }) => 
-  <Route {...rest} path={to} children={({ match, location }) => {
-    const single = to.substring( 0, to.length - 1 ) + '/'
-    const selected = match || location.pathname.startsWith( to ) || location.pathname.startsWith( single ) || ( regex && location.pathname.match( regex ) )
-    return <li className={selected ? 'uk-active' : ''}><Link to={to}>{label}</Link></li>
-  }}/>
-
-const PrivateRoute = ({ component:C, render, role, ...rest }) =>
-  <Route {...rest} render={props => {
-    if( isAuthenticated() ){
-      if( !role || hasPermission( role ) )
-        return C ? <C {...props}/> : render( props )
-      else
-        return props.history.replace( '/403' )
-    }
-    else
-      return <Redirect to={{ pathname:'/auth', state:{ from:props.location } }}/> 
-  }}/>
+const For = ({ role, ...rest }) => {
+  if( !isAuthenticated() ) return <Navigate to="/auth"/> 
+  return !role || hasPermission( role ) ? <Outlet/> : <Navigate  to="/403"/> 
+}
 
 const UserList = props => <List object="User" {...props} readonly noSearch columns={[ 
   'email', 'name',

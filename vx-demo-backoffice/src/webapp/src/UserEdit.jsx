@@ -1,8 +1,9 @@
 import React from "react"
 import FormComponent, { Boolean, Field, Text }  from "./common/FormComponent"
 import moment from "moment"
+import { withParams } from "./common/Misc"
 
-export default class UserEdit extends FormComponent {
+class UserEdit extends FormComponent {
 
   model = 'user'
 
@@ -16,7 +17,6 @@ export default class UserEdit extends FormComponent {
 
   savedData = _ => {
     const { name, permissions, birthDate } = this.state.values
-    console.info( permissions )
     return { name, permissions, birthDate }
   }
 
@@ -38,3 +38,5 @@ export default class UserEdit extends FormComponent {
   }
 
 }
+
+export default withParams( UserEdit )

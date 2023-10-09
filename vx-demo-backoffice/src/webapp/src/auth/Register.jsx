@@ -2,7 +2,7 @@ import React, { Component } from "react"
 import axios from 'axios'
 import cogoToast from "cogo-toast"
 import { Text } from "../common/FormComponent"
-import { Redirect } from "react-router-dom"
+import { Navigate } from "react-router-dom"
 
 export default class Register extends Component {
   
@@ -48,7 +48,7 @@ export default class Register extends Component {
 
   render() {
     let { from } = this.props.location.state || { from:{ pathname:'/' } }
-    if( this.state.redirectToReferrer ) return <Redirect to={from} />
+    if( this.state.redirectToReferrer ) return <Navigate to={from} />
 
     const { email, name, birthDate, password, password1 } = this.state
 

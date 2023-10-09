@@ -4,10 +4,19 @@ import { GrClose } from "react-icons/gr"
 import moment from 'moment'
 import { confirmAlert } from 'react-confirm-alert'
 import 'react-confirm-alert/src/react-confirm-alert.css'
+import { useNavigate, useParams } from "react-router"
 
-export const BackArrow = ({ history }) => <MdArrowBack className="pointer" onClick={() => history.goBack()}/> 
+export const BackArrow = _ => {
+  const navigate = useNavigate()
+  return <MdArrowBack className="pointer" onClick={_ => navigate( -1 )}/> 
+} 
 
-export const BackClose = ({ history }) => <GrClose className="pointer uk-margin-right" size=".8em" onClick={_ => history.goBack()}/> 
+export const BackClose = _ => { 
+  const navigate = useNavigate()
+  return <GrClose className="pointer uk-margin-right" size=".8em" onClick={_ => navigate( -1 )}/> 
+}
+
+export const withParams = Component => _ => <Component params={useParams()} navigate={useNavigate()}/>
 
 export const FancyDate = ({ time, threshold }) => {
   time = moment( time )
@@ -35,8 +44,11 @@ export const onDelete = kill => _ => {
   } )
 }
 
-export const FormButtons = ({ history, kill }) => <div className="uk-margin-top">
-  <button type="button" className="uk-button uk-button-default" onClick={() => history && history.goBack()}>Cancel</button> 
-  <button type="submit" className="uk-button uk-button-primary uk-align-right">{kill ? 'Update' : 'Save'}</button> 
-  {kill && <button type="button" className="uk-button uk-button-danger uk-align-right" onClick={onDelete( kill )}>Delete</button>}
+export const FormButtons = ({ kill }) => {
+  const navigate = useNavigate()
+  return <div className="uk-margin-top">
+    <button type="button" className="uk-button uk-button-default" onClick={_ => navigate( -1 )}>Cancel</button> 
+    <button type="submit" className="uk-button uk-button-primary uk-align-right">{kill ? 'Update' : 'Save'}</button> 
+    {kill && <button type="button" className="uk-button uk-button-danger uk-align-right" onClick={onDelete( kill )}>Delete</button>}
 </div>
+}

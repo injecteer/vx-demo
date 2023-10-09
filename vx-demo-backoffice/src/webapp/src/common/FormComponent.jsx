@@ -8,8 +8,6 @@ export default class FormComponent extends Component {
   
   model = null
   
-  mainName = 'name'
-  
   state = { values:{}, loading:false }
   
   componentDidMount() {
@@ -17,7 +15,7 @@ export default class FormComponent extends Component {
   }
 
   getUrl() {
-    const { id } = this.props.match.params
+    const { id } = this.props.params
     return id ? `/api/${this.getModel()}/${id}` : null
   }
 
@@ -40,10 +38,10 @@ export default class FormComponent extends Component {
   onLoad() {}
   
   kill = _ => {
-    const { id } = this.props.match.params
+    const { id } = this.props.params
     axios.delete( `/api/${this.getModel()}/${id}` ).then( () => {
-      this.props.history.goBack()
-      cogoToast.info( this.state.values[ this.mainName ] + ' deleted' )
+      this.props.navigate( -1 )
+      cogoToast.info( <>{this.getModel()} <b>{id}</b> deleted</> )
     } ).catch( resp => cogoToast.warn( resp ) )
   }
   
@@ -60,22 +58,22 @@ export default class FormComponent extends Component {
       return
     }
     
-    const { id } = this.props.match.params
+    const { id } = this.props.params
 
     axios.post( `/api/${this.getModel()}${id ? '/' + id : ''}`, data ).then( resp => {
-      cogoToast.info( this.state.values[ this.mainName ] + ' saved' )
-      if( !id ) this.props.history.replace( `/${this.getModel()}/edit/${resp.data.id}` )
+      cogoToast.info( <>{this.getModel()} <b>{id}</b> saved</> )
+      if( !id ) this.props.navigate( `/${this.getModel()}/edit/${resp.data.id}`, { replace:true } )
     } ).catch( err => cogoToast.error( <>Errors<ul>{err?.data?.errors?.map( e => <li>{e}</li> )}</ul></>, { hideAfter:7 } ) )
   }
   
   getModel = _ => this.model[ 0 ].toLowerCase() + this.model.substring( 1 )
   
   render( children, preview ) {
-    const { id } = this.props.match.params
+    const { id } = this.props.params
     const { loading } = this.state
 
     return <div>
-      <h3><BackArrow history={this.props.history}/> {id ? 'Edit' : 'Create'} {this.model}</h3>
+      <h3><BackArrow/> {id ? 'Edit' : 'Create'} {this.model}</h3>
       
       <PulseLoader loading={loading} color="#bbb" size="1.6em"/>
       
@@ -85,7 +83,7 @@ export default class FormComponent extends Component {
             {children}
           </fieldset>
           
-          <FormButtons kill={id && this.kill} history={this.props.history}/>
+          <FormButtons kill={id && this.kill}/>
         </form>
 
         <div className="uk-width-1-2 uk-margin-large-left">

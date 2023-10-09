@@ -1,7 +1,8 @@
 import React from "react"
 import FormComponent, { Boolean, Text }  from "../common/FormComponent"
+import { withParams } from "../common/Misc"
 
-export default class LogEventEdit extends FormComponent {
+class LogEventEdit extends FormComponent {
 
   model = 'logEvent'
 
@@ -22,3 +23,5 @@ export default class LogEventEdit extends FormComponent {
   }
 
 }
+
+export default withParams( LogEventEdit )
