@@ -22,7 +22,7 @@ const Main = () => {
   
   const { user, clearAuth } = useContext( AuthContext )
   
-  const { status, newIds } = useContext( EventBusContext )
+  const { newIds } = useContext( EventBusContext )
 
   const history = useHistory()
 
@@ -58,7 +58,7 @@ const Main = () => {
             <MenuItem to="/users" exact label="Users"/>
           </IsGranted>
           <IsGranted all="kunde">
-            <MenuItem to="/logEvents" exact label={<>Log Events {status && !!newIds?.length && <span className="uk-badge">{20 > newIds.length ? newIds.length : '20+'}</span>}</>}/>
+            <MenuItem to="/logEvents" exact label={<>Log Events {!!newIds.length && <span className="uk-badge">{20 > newIds.length ? newIds.length : '20+'}</span>}</>}/>
           </IsGranted>
         </ul>
       </IsAuthenticated>

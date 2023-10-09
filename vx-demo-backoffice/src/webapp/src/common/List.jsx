@@ -104,8 +104,6 @@ export default class List extends PureComponent {
     const { loading, count, offset } = this.state
     const list = this.props.list ?? this.state.list
 
-    console.info( )
-
     const obj = object[ 0 ].toLowerCase() + object.substring( 1 )
     
     return <div>

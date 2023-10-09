@@ -16,7 +16,7 @@ export default () => {
   }, [ newIds ] )
 
   return <div className={'pointer uk-margin-right ' + className}>
-    <Link to="/logEvents" onClick={_ => setCount( 0 )}>
+    <Link to="/logEvents">
       {status ? <MdNotificationsNone size="2.4em" color="black"/> : <MdOutlineNotificationsOff size="2.4em" color="gray"/>}
       {status && !!newIds.length && <span className="uk-badge" style={{ marginLeft:'-1.6em' }}>{20 > newIds.length ? newIds.length : '20+'}</span>}
     </Link>

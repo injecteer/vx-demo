@@ -26,13 +26,11 @@ export default class EventBusBridge {
       onClose()
       this.connected = false
     }
-
-    return this.close
   }
 
   static isConnected = _ => this.connected
 
-  static close() {
+  static close = _ => {
     this.connected = false
     this.eventBus?.close()
   }

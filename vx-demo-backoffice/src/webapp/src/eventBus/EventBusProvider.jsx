@@ -19,11 +19,11 @@ export const EventBusProvider = ({ children }) => {
         {
           'weather.called':( error, msg ) => {
             const { id } = msg.body
-            cogoToast.warn( <><b>weather.called</b> -&gt; New Id <b>{id}</b></> )
+            cogoToast.warn( <><b>weather.called</b> ➔ New Id <b>{id}</b></> )
           },
           ['user.' + user.id]:( error, msg ) => {
             const { id } = msg.body
-            cogoToast.info( <><b>user.{user.id}</b> -&gt; New Id <b>{id}</b></> )
+            cogoToast.info( <><b>user.{user.id}</b> ➔ New Id <b>{id}</b></> )
             setNewIds( old => [ ...old, id ] )
           }
         }, 
