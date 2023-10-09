@@ -16,10 +16,13 @@ import { ForgotPassword } from "./auth/ForgotPassword"
 import LogEventsList from "./logEvent/LogEventsList"
 import LogEventEdit from "./logEvent/LogEventEdit"
 import StatusIndicator from "./eventBus/StatusIndicator"
+import { EventBusContext } from "./eventBus/EventBusProvider"
 
 const Main = () => {
   
   const { user, clearAuth } = useContext( AuthContext )
+  
+  const { status, indicator } = useContext( EventBusContext )
 
   const history = useHistory()
 
@@ -55,7 +58,7 @@ const Main = () => {
             <MenuItem to="/users" exact label="Users"/>
           </IsGranted>
           <IsGranted all="kunde">
-            <MenuItem to="/logEvents" exact label="Log Events"/>
+            <MenuItem to="/logEvents" exact label={<>Log Events {status && !!indicator.count && <span className="uk-badge">{20 > indicator.count ? indicator.count : '20+'}</span>}</>}/>
           </IsGranted>
         </ul>
       </IsAuthenticated>

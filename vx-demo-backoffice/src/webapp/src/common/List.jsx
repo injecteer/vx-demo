@@ -132,7 +132,7 @@ export default class List extends PureComponent {
         <tbody>
           {list?.map( ( o, trIx ) => 
             <tr key={o.id}>
-              <td width="3%" align="right">{parseInt( offset ) + trIx + 1}.</td>
+              <td width="3%" align="right">{parseInt( offset ?? 0 ) + trIx + 1}.</td>
               {columns.map( ( n, tdIx ) => {
                 let v = ''
                 if( 'function' === typeof n ){

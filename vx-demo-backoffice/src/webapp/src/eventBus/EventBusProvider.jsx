@@ -1,5 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react'
-import { useHistory, useLocation } from "react-router-dom"
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { AuthContext } from '../auth/Authorization'
 import EventBusBridge from './EventBusBridge'
 import cogoToast from 'cogo-toast'
@@ -11,14 +10,8 @@ export const EventBusProvider = ({ children }) => {
   const { user } = useContext( AuthContext )
 
   const [ status, setStatus ] = useState( false )
-  const [ indicator, setIndicator ] = useState( { newId:null, blink:null, reset:false } )
+  const [ indicator, setIndicator ] = useState( { newId:null, count:null } )
   
-  let location = useLocation().pathname
-  const unlisten = useHistory().listen( loc => {
-    location = loc.pathname
-    if( '/logEvents' === location ) setIndicator( { reset:true } )
-  } )
-
   useEffect( _ => {
     if( user )
       EventBusBridge.connect(
@@ -27,12 +20,11 @@ export const EventBusProvider = ({ children }) => {
           'weather.called':( error, msg ) => {
             const { id } = msg.body
             cogoToast.warn( <><b>weather.called</b> -&gt; New Id <b>{id}</b></> )
-            
           },
           ['user.' + user.id]:( error, msg ) => {
             const { id } = msg.body
             cogoToast.info( <><b>user.{user.id}</b> -&gt; New Id <b>{id}</b></> )
-            setIndicator( { newId:id, blink:'/logEvents' === location ? null : id } )
+            setIndicator( old => ({ newId:id, count:( old.count ?? 0 ) + 1 }) )
           }
         }, 
         _ => setStatus( false )
@@ -40,13 +32,16 @@ export const EventBusProvider = ({ children }) => {
     else
       EventBusBridge.close()
 
-    return _ => {
-      EventBusBridge.close()
-      unlisten()
-    }
+    return EventBusBridge.close
   }, [ user ] )
 
-  return <EventBusContext.Provider value={ { status, setStatus, indicator, setIndicator }}>
+  const setStatusCB = useCallback( setStatus, [] )
+  const setIndicatorCB = useCallback( setIndicator, [] )
+
+  const val = useMemo( _ => ({ status, setStatus:setStatusCB, indicator, setIndicator:setIndicatorCB }), 
+                      [ status, setStatusCB, indicator, setIndicatorCB ] )
+
+  return <EventBusContext.Provider value={val}>
     {children}
   </EventBusContext.Provider>
 }

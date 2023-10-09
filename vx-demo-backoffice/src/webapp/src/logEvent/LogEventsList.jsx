@@ -6,8 +6,11 @@ import { EventBusContext } from "../eventBus/EventBusProvider"
 
 export default _ => {
   const ref = useRef()
-  const { indicator } = useContext( EventBusContext )
-  useEffect( () => { if( indicator.newId ) ref.current.load() }, [ indicator ])
+  const { indicator, setIndicator } = useContext( EventBusContext )
+  useEffect( () => {
+    if( indicator.newId ) ref.current.load() 
+    if( indicator.count ) setIndicator( { count:null } )
+  }, [ indicator ] )
   return <LogEventsList ref={ref}/>
 }
 
