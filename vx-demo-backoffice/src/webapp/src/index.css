@@ -24,23 +24,11 @@ body,
   padding:0 .8em;
 }
 
+.hili { background-color: aliceblue; } 
+
 .mainMenu {
   display: flex; 
   justify-content: flex-end
-}
-
-.circular {
-  position: relative;
-  overflow: hidden;
-  margin-right: .6em;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-}
-
-.circular img {
-  width: 100%;
-  height: auto;
 }
 
 .pointer {

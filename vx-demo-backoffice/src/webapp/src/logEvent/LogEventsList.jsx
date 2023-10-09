@@ -1,17 +1,18 @@
-import React, { useContext, useEffect, useRef } from "react"
+import React, { useContext, useEffect, useRef, useState } from "react"
 import { Boolean } from "../common/FormComponent"
 import List from "../common/List"
 import { FancyDate } from "../common/Misc"
 import { EventBusContext } from "../eventBus/EventBusProvider"
 
-export default _ => {
+export default () => {
+  const { newIds, setNewIds } = useContext( EventBusContext )
+
   const ref = useRef()
-  const { indicator, setIndicator } = useContext( EventBusContext )
-  useEffect( () => {
-    if( indicator.newId ) ref.current.load() 
-    if( indicator.count ) setIndicator( { count:null } )
-  }, [ indicator ] )
-  return <LogEventsList ref={ref}/>
+  useEffect( _ => { if( newIds.length ) ref.current.load() }, [ newIds ] )
+  
+  useEffect( _ => _ => setNewIds( [] ), [] )
+
+  return <LogEventsList hili={newIds} ref={ref}/>
 }
 
 class LogEventsList extends List {

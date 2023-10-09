@@ -100,9 +100,11 @@ export default class List extends PureComponent {
   }
 
   render() {
-    const { object, columns, linkPath } = { ...this, ...this.props }
+    const { object, columns, linkPath, hili } = { ...this, ...this.props }
     const { loading, count, offset } = this.state
     const list = this.props.list ?? this.state.list
+
+    console.info( )
 
     const obj = object[ 0 ].toLowerCase() + object.substring( 1 )
     
@@ -131,7 +133,7 @@ export default class List extends PureComponent {
         </thead>
         <tbody>
           {list?.map( ( o, trIx ) => 
-            <tr key={o.id}>
+            <tr key={o.id} className={hili?.includes( o.id ) ? 'hili' : ''}>
               <td width="3%" align="right">{parseInt( offset ?? 0 ) + trIx + 1}.</td>
               {columns.map( ( n, tdIx ) => {
                 let v = ''

@@ -10,7 +10,7 @@ export const EventBusProvider = ({ children }) => {
   const { user } = useContext( AuthContext )
 
   const [ status, setStatus ] = useState( false )
-  const [ indicator, setIndicator ] = useState( { newId:null, count:null } )
+  const [ newIds, setNewIds ] = useState( [] )
   
   useEffect( _ => {
     if( user )
@@ -24,7 +24,7 @@ export const EventBusProvider = ({ children }) => {
           ['user.' + user.id]:( error, msg ) => {
             const { id } = msg.body
             cogoToast.info( <><b>user.{user.id}</b> -&gt; New Id <b>{id}</b></> )
-            setIndicator( old => ({ newId:id, count:( old.count ?? 0 ) + 1 }) )
+            setNewIds( old => [ ...old, id ] )
           }
         }, 
         _ => setStatus( false )
@@ -36,12 +36,10 @@ export const EventBusProvider = ({ children }) => {
   }, [ user ] )
 
   const setStatusCB = useCallback( setStatus, [] )
-  const setIndicatorCB = useCallback( setIndicator, [] )
+  const setNewIdsCB = useCallback( setNewIds, [] )
 
-  const val = useMemo( _ => ({ status, setStatus:setStatusCB, indicator, setIndicator:setIndicatorCB }), 
-                      [ status, setStatusCB, indicator, setIndicatorCB ] )
+  const val = useMemo( _ => ({ status, setStatus:setStatusCB, newIds, setNewIds:setNewIdsCB }), 
+                      [ status, setStatusCB, newIds, setNewIdsCB ] )
 
-  return <EventBusContext.Provider value={val}>
-    {children}
-  </EventBusContext.Provider>
+  return <EventBusContext.Provider value={val}>{children}</EventBusContext.Provider>
 }
