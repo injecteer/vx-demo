@@ -1,9 +1,17 @@
-import React from "react"
-import List from "./common/List"
-import { FancyDate } from "./common/Misc"
-import { Boolean } from "./common/FormComponent"
+import React, { useContext, useEffect, useRef } from "react"
+import { Boolean } from "../common/FormComponent"
+import List from "../common/List"
+import { FancyDate } from "../common/Misc"
+import { EventBusContext } from "../eventBus/EventBusProvider"
 
-export default class LogEventsList extends List {
+export default _ => {
+  const ref = useRef()
+  const { indicator } = useContext( EventBusContext )
+  useEffect( () => { if( indicator.newId ) ref.current.load() }, [ indicator ])
+  return <LogEventsList ref={ref}/>
+}
+
+class LogEventsList extends List {
   
   object = 'LogEvent'
   

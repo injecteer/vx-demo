@@ -6,13 +6,12 @@ import java.lang.annotation.RetentionPolicy
 import java.lang.annotation.Target
 
 /**
- * If specified, the {@link CorsHandler} is applied to the main endpoint in dev-mode.
+ * If specified, the {@link io.vertx.ext.web.handler.CorsHandler CorsHandler} is added to the main endpoint in dev-mode.<br/>
+ * The {@link value} represents origin, like <code>http://localhost:8888</code>.<br/>
+ * See also {@link io.vertx.ext.web.handler.CorsHandler#addOrigin addOrigin()}
  */
 @Retention( RetentionPolicy.RUNTIME )
 @Target( [ ElementType.TYPE ] )
 @interface CORS {
-  /**
-   * health check port number
-   */
   String value()
 }

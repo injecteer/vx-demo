@@ -1,5 +1,5 @@
 import React from "react"
-import FormComponent, { Boolean, Text }  from "./common/FormComponent"
+import FormComponent, { Boolean, Text }  from "../common/FormComponent"
 
 export default class LogEventEdit extends FormComponent {
 

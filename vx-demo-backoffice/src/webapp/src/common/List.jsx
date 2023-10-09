@@ -130,7 +130,7 @@ export default class List extends PureComponent {
           </tr>
         </thead>
         <tbody>
-          {list.length ? list.map( ( o, trIx ) => 
+          {list?.map( ( o, trIx ) => 
             <tr key={o.id}>
               <td width="3%" align="right">{parseInt( offset ) + trIx + 1}.</td>
               {columns.map( ( n, tdIx ) => {
@@ -156,8 +156,10 @@ export default class List extends PureComponent {
                 return <td key={tdIx}>
                   {0 === tdIx ? <Link to={`/${obj}/${linkPath}/${o.id}`}>{v}</Link> : v}
                 </td> } )}
-            </tr>
-          ) : <tr><td align="center" colSpan={columns.length + 1}><i>- no {obj}s found -</i></td></tr>}
+            </tr> ) }
+
+          {!list?.length && <tr><td align="center" colSpan={columns.length + 1}><i>- no {obj}s found -</i></td></tr>}
+          
         </tbody>
       </table>
 

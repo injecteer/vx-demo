@@ -67,15 +67,18 @@ class WebVerticle extends AbstractVerticle {
     
     if( isStandalone ){
       if( 1 == context.instanceCount || Thread.currentThread().name.endsWith( 'thread-2' ) ){
-        DatagramSocket socket = new DatagramSocket()
-        socket.connect InetAddress.getByName( '8.8.8.8' ), 10002
+        String ip
+        try( DatagramSocket socket = new DatagramSocket() ){
+          socket.connect InetAddress.getByName( '8.8.8.8' ), 10002
+          ip = socket.localAddress.hostAddress
+        }
         
         log.info getClass().getResource( '/banner.txt' ).text
         log.info "Java version   :: ${Runtime.version()}"
         log.info "Groovy version :: $GroovySystem.version"
         log.info "Vert.X version :: $VersionCommand.version"
         log.info "Environment    :: ${WebEnvironment.mode()}"
-        log.info "IP-Address     :: $socket.localAddress.hostAddress"
+        log.info "IP-Address     :: $ip"
       }
       
       var hco = getClass().getAnnotationsByType HealthCheckOnly

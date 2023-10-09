@@ -6,6 +6,8 @@ import Main from './Main'
 import axios from 'axios'
 import './index.css'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { AuthProvider, clearAuth, getAuthorization, storeAuthorization } from './auth/Authorization'
+import { EventBusProvider } from './eventBus/EventBusProvider'
 
 Modal.setAppElement( '#root' )
 
@@ -14,7 +16,7 @@ const queryClient = new QueryClient()
 axios.defaults.baseURL = process.env.REACT_APP_SERVER
 axios.defaults.headers.common[ 'Content-Type' ] = 'application/json; charset=UTF-8'
 
-axios.defaults.headers.common.authorization = localStorage.getItem( 'authorization' )
+axios.defaults.headers.common.authorization = getAuthorization()
 
 axios.interceptors.response.use( resp => {
   const { authorization } = resp.headers
@@ -22,7 +24,7 @@ axios.interceptors.response.use( resp => {
   if( authorization ){
     // console.info( 'new authorization', authorization.length )
     axios.defaults.headers.common.authorization = authorization
-    localStorage.setItem( 'authorization', authorization )
+    storeAuthorization( authorization )
   }
   return resp
 }, err => {
@@ -31,9 +33,7 @@ axios.interceptors.response.use( resp => {
 
     switch( axios.defaults.headers.common.authorization ? err.request.status : null ){
       case 401:
-        delete axios.defaults.headers.common.authorization
-        localStorage.removeItem( 'authorization' )
-        localStorage.removeItem( 'userAccount' )
+        clearAuth()
         window.location.reload()
         return Promise.reject( err.response )
         
@@ -50,6 +50,10 @@ axios.interceptors.response.use( resp => {
 
 createRoot( document.getElementById( 'root' ) ).render( <BrowserRouter>
   <QueryClientProvider client={queryClient}>
-    <Main/>
+    <AuthProvider>
+      <EventBusProvider>
+        <Main/>
+      </EventBusProvider>
+    </AuthProvider>
   </QueryClientProvider>
 </BrowserRouter> )

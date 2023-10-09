@@ -1,4 +1,4 @@
-package vx.demo.web;
+package vx.demo.web
 
 import java.lang.annotation.ElementType
 import java.lang.annotation.Retention
