@@ -40,8 +40,11 @@ class BackofficeVerticle extends WebVerticle {
     
     router.get '/static/*' handler StaticHandler.create().setDefaultContentEncoding( 'UTF-8' )
     
-    Buffer indexHtml = Buffer.buffer getClass().getResource( '/index.html' ).text
-    router.get '/*' handler{ it.end indexHtml }
+    String indx = getClass().getResource( '/index.html' )?.text
+    if( indx ){
+      Buffer indexHtml = Buffer.buffer indx
+      router.get '/*' handler{ it.end indexHtml }
+    }
     
     vertx.createHttpServer().requestHandler router listen HTTP, startPromise
   }
