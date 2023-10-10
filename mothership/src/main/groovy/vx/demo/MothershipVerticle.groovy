@@ -117,7 +117,15 @@ class MothershipVerticle extends WebVerticle {
                 writeErr socket, verticle, it.cause()
             }
             break
+
+          case 'show-log':
+            SocketAppender.enable socket
+            break
             
+          case 'hide-log':
+            SocketAppender.disable()
+            break
+                        
           case 'health':
           case 'health-all':
             String clazz = 'health' == cmd.command ? tuple.v1.simpleName : MothershipVerticle.simpleName
