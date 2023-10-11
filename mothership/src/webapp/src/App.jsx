@@ -1,6 +1,6 @@
 import { Component } from 'react'
 import SockJS from 'sockjs-client'
-import { MdOutlinePlayCircleFilled, MdOutlinePauseCircleFilled, MdMonitorHeart, MdCircle, MdSave, MdSettingsBackupRestore, MdOutlineClear, MdOutlineFeaturedPlayList, MdFeaturedPlayList } from 'react-icons/md'
+import { MdOutlinePlayCircleFilled, MdOutlinePauseCircleFilled, MdMonitorHeart, MdCircle, MdSave, MdSettingsBackupRestore, MdOutlineClear } from 'react-icons/md'
 import cogoToast from 'cogo-toast'
 
 import 'uikit/dist/css/uikit.min.css'
@@ -11,7 +11,7 @@ export default class App extends Component {
   
   sockJS = null
   
-  state = { list:[], options:{}, log:'', showLog:false, state:SockJS.CLOSED, settingsFor:null }
+  state = { list:[], options:{}, state:SockJS.CLOSED, settingsFor:null }
 
   timer = null
 
@@ -23,7 +23,10 @@ export default class App extends Component {
     if( SockJS.OPEN === this.sockJS?.readyState ) return
 
     this.sockJS = new SockJS( process.env.REACT_APP_SERVER + '/ws' )
-    this.sockJS.onopen = _ => this.setState( { state:this.sockJS.readyState } )
+    this.sockJS.onopen = _ => {
+      console.clear()
+      this.setState( { state:this.sockJS.readyState } )
+    }
     this.sockJS.onclose = _ => this.setState( { state:this.sockJS?.readyState ?? SockJS.CLOSED } )
 
     this.sockJS.onmessage = ({ data }) => {
@@ -36,9 +39,7 @@ export default class App extends Component {
           this.setState( { list:json.body, options } )
           break
         case 'log':
-          let { log } = this.state
-          log += '\n' + json.body
-          this.setState( { log } )
+          console.info( json.body )
           break
         case 'info':
           cogoToast.info( <><b>{json.verticle}</b><pre>{JSON.stringify( json.body, null, 2 )}</pre></>, { hideAfter:7 } )
@@ -77,16 +78,6 @@ export default class App extends Component {
   health = verticle => _ => this.send( { command:'health', verticle } )
 
   healthAll = _ => this.send( { command:'health-all' } )
-
-  showLog = _ => {
-    this.setState( { showLog:true } )
-    this.send( { command:'show-log' } )
-  }
-
-  hideLog = _ => {
-    this.setState( { showLog:false } )
-    this.send( { command:'hide-log' } )
-  }
 
   storePreset = _ => {
     const { options, list } = this.state
@@ -127,80 +118,67 @@ export default class App extends Component {
   }
   
   render() {
-    const { list, state, options, settingsFor, showLog, log } = this.state
+    const { list, state, options, settingsFor } = this.state
     
     const opt = options[ settingsFor ]
 
-    return <div className="uk-padding" role="main" data-uk-height-viewport="offset-top: true; offset-bottom: 6">
-
+    return <div className="uk-container uk-width-3-5 uk-margin-top" role="main" data-uk-height-viewport="offset-top: true; offset-bottom: 6">
+      
       <h2><img src={process.env.PUBLIC_URL + '/favicon.png'} alt="logo" height="74" width="74" className="uk-margin-right"/>Mothership Dashboard <MdCircle className="pointer uk-margin-left" size=".6em" onClick={this.connect} color={SockJS.OPEN === state ? 'green' : 'red'} uk-tooltip={SockJS.OPEN === state ? 'Online' : 'Offline'}/></h2>
 
-      <div className="uk-flex">
-        <div className="uk-width-1-2 uk-padding">
-          <div className="uk-flex uk-flex-right">
-            <MdSave className="pointer uk-margin-left" onClick={this.storePreset} size="3em" uk-tooltip="Save run preset"/>
-            <MdSettingsBackupRestore className="pointer uk-margin-left" onClick={this.restorePreset} size="3em" uk-tooltip="Restore & start preset"/>
-            
-            <hr className="uk-divider-vertical" style={{ height:'50px' }}/>
-            
-            <MdOutlinePlayCircleFilled className="pointer uk-margin-left" onClick={this.startAll} size="3em" color="green" uk-tooltip="Start All"/>      
-            <MdMonitorHeart className="pointer uk-margin-left" onClick={this.healthAll} size="3em" uk-tooltip="Health Check"/>
-          </div>
-
-          <table className="uk-table">
-            <thead>
-              <tr>
-                <th width="5%" style={{ textAlign:'right' }}>#</th>
-                <th width="75%">Verticle</th>
-                <th width="20%">actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {Object.entries( list ).map( ( [ v, stateDesc ], ix ) => {
-                const [ state, desc ] = stateDesc
-
-                return <tr key={ix}>
-                  <td align="right">{ix + 1}.</td>
-                  <td>
-                    <div uk-tooltip={state && `${options[ v ].worker ? 'worker, ' : ''} ${options[ v ].instances} inst`} style={state ? { color:'green', fontWeight:'bolder' } : {}}>{v}</div>
-                    <div style={{ fontSize:'small', color:'#aaa' }}>{desc}</div>
-                  </td>
-                  <td>
-                    {state ? 
-                      <MdOutlinePauseCircleFilled className="pointer" onClick={this.stop( v )} size="2.6em" color="deepskyblue" uk-tooltip="Stop"/> :
-                      <MdOutlinePlayCircleFilled className="pointer" onClick={this.start( v )} size="2.6em" color="green" uk-tooltip="Start"/>}
-
-                    <MdMonitorHeart className="pointer uk-margin-left" onClick={state ? this.health( v ) : _ => null} color={state ? '#555' : '#ddd'} size="2.6em" uk-tooltip="Health Check"/>
-                    
-                    {opt && v === settingsFor && <div style={{ position:'absolute', marginLeft:'110px', marginTop:'-35px' }}>
-                      
-                      <label htmlFor={'_' + hashCode( 'instances_' + v )} className="pointer">Instances</label>&nbsp;
-                      <input type="number" className="uk-range uk-form-width-xsmall" id={'_' + hashCode( 'instances_' + v )} name="instances" min="1" max="4" value={opt.instances} onChange={this.handleChange}/>
-                      &nbsp; 
-                      
-                      <label htmlFor={'_' + hashCode( 'worker_' + v )} className="pointer">Worker</label>&nbsp;
-                      <input type="checkbox" className="uk-checkbox" id={'_' + hashCode( 'worker_' + v )} name="worker" defaultChecked={opt.worker} onChange={this.handleChange}/>
-                      &nbsp;&nbsp;&nbsp;
-                      
-                      <button className="uk-button uk-button-primary uk-button-small" onClick={this.start( v )}>OK</button>
-                      <MdOutlineClear size="1.5em" className="pointer uk-margin-small-left" onClick={_ => this.setState( { settingsFor:null } )}/>
-                    </div>}
-                  </td>
-                </tr> 
-              } )}  
-            </tbody>
-          </table>
-        </div>
-
-        <div className="uk-width-1-2">
-          
-          {showLog ? 
-            <MdFeaturedPlayList size="2em" className="pointer" onClick={this.hideLog} color="deepskyblue" uk-tooltip="Hide Logs"/> :
-            <MdOutlineFeaturedPlayList size="2em" className="pointer" onClick={this.showLog} uk-tooltip="Show Logs"/>}
-
-          <pre className="uk-container" style={{ minHeight:'500px', maxHeight:'500px', overflowY:'scroll' }}>{log}</pre>
-        </div>
+      <div className="uk-flex uk-flex-right uk-margin uk-width-5-6">
+        <MdSave className="pointer uk-margin-left" onClick={this.storePreset} size="3em" uk-tooltip="Save run preset"/>
+        <MdSettingsBackupRestore className="pointer uk-margin-left" onClick={this.restorePreset} size="3em" uk-tooltip="Restore & start preset"/>
+        
+        <hr className="uk-divider-vertical" style={{ height:'50px' }}/>
+        
+        <MdOutlinePlayCircleFilled className="pointer uk-margin-left" onClick={this.startAll} size="3em" color="green" uk-tooltip="Start All"/>      
+        <MdMonitorHeart className="pointer uk-margin-left" onClick={this.healthAll} size="3em" uk-tooltip="Health Check"/>
       </div>
+
+      <table className="uk-table">
+        <thead>
+          <tr>
+            <th width="5%" style={{ textAlign:'right' }}>#</th>
+            <th width="64%">Verticle</th>
+            <th width="20%">actions</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {Object.entries( list ).map( ( [ v, stateDesc ], ix ) => {
+            const [ state, desc ] = stateDesc
+
+            return <tr key={ix}>
+              <td align="right">{ix + 1}.</td>
+              <td>
+                <div uk-tooltip={state && `${options[ v ].worker ? 'worker, ' : ''} ${options[ v ].instances} inst`} style={state ? { color:'green', fontWeight:'bolder' } : {}}>{v}</div>
+                <div style={{ fontSize:'small', color:'#aaa' }}>{desc}</div>
+              </td>
+              <td>
+                {state ? 
+                  <MdOutlinePauseCircleFilled className="pointer" onClick={this.stop( v )} size="2.6em" color="deepskyblue" uk-tooltip="Stop"/> :
+                  <MdOutlinePlayCircleFilled className="pointer" onClick={this.start( v )} size="2.6em" color="green" uk-tooltip="Start"/>}
+
+                <MdMonitorHeart className="pointer uk-margin-left" onClick={state ? this.health( v ) : _ => null} color={state ? '#555' : '#ddd'} size="2.6em" uk-tooltip="Health Check"/>
+              </td>
+              <td>{opt && v === settingsFor && <div style={{ position:'absolute' }}>
+                
+                <label htmlFor={'_' + hashCode( 'instances_' + v )} className="pointer">Instances</label>&nbsp;
+                <input type="number" className="uk-range uk-form-width-xsmall" id={'_' + hashCode( 'instances_' + v )} name="instances" min="1" max="4" value={opt.instances} onChange={this.handleChange}/>
+                &nbsp; 
+                
+                <label htmlFor={'_' + hashCode( 'worker_' + v )} className="pointer">Worker</label>&nbsp;
+                <input type="checkbox" className="uk-checkbox" id={'_' + hashCode( 'worker_' + v )} name="worker" defaultChecked={opt.worker} onChange={this.handleChange}/>
+                &nbsp;&nbsp;&nbsp;
+                
+                <button className="uk-button uk-button-primary uk-button-small" onClick={this.start( v )}>OK</button>
+                <MdOutlineClear size="1.5em" className="pointer uk-margin-small-left" onClick={_ => this.setState( { settingsFor:null } )}/>
+              </div>}</td>
+            </tr> 
+          } )}  
+        </tbody>
+      </table>
 
       <div className="footer">version: {window.projectVersion}</div>
     </div>

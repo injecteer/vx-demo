@@ -69,6 +69,10 @@ class MothershipVerticle extends WebVerticle {
   void sockJS( SockJSSocket socket ) {
     writeStates socket // initial state
 
+    SocketAppender.enable socket
+    
+    socket.closeHandler{ SocketAppender.disable() }
+    
     socket.handler{ req ->
       Map cmd = req.toJsonObject().map
       
@@ -116,14 +120,6 @@ class MothershipVerticle extends WebVerticle {
               }else
                 writeErr socket, verticle, it.cause()
             }
-            break
-
-          case 'show-log':
-            SocketAppender.enable socket
-            break
-            
-          case 'hide-log':
-            SocketAppender.disable()
             break
                         
           case 'health':
