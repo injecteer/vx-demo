@@ -19,11 +19,13 @@ class SocketAppender extends AppenderBase<ILoggingEvent> {
   
   private static final String PATTERN = '%d{HH:mm:ss.SSS} %-5level %logger{30} - %msg%n'
 
-  private static final Logger logbackLogger = (Logger)LoggerFactory.getLogger( Logger.ROOT_LOGGER_NAME )
+  private static final LoggerContext CTX = (LoggerContext) LoggerFactory.ILoggerFactory
+  
+  private static final Logger LOG = (Logger)LoggerFactory.getLogger( Logger.ROOT_LOGGER_NAME )
   
   static {
-    logbackLogger.level = Level.INFO
-    logbackLogger.additive = false
+    LOG.level = Level.INFO
+    LOG.additive = false
   }
   
   private SockJSSocket socket
@@ -39,18 +41,18 @@ class SocketAppender extends AppenderBase<ILoggingEvent> {
   }
 
   static void enable( SockJSSocket socket ) {
-    LoggerContext ctx = (LoggerContext) LoggerFactory.ILoggerFactory
-    PatternLayoutEncoder encoder = new PatternLayoutEncoder( pattern:PATTERN, context:ctx )
+    PatternLayoutEncoder encoder = new PatternLayoutEncoder( pattern:PATTERN, context:CTX )
     encoder.start()
     
-    me = new SocketAppender( socket:socket, encoder:encoder, context:ctx )
+    me = new SocketAppender( socket:socket, encoder:encoder, context:CTX )
     me.start()
   
-    logbackLogger.addAppender me
+    LOG.addAppender me
   }
   
   static void disable() {
-    logbackLogger.detachAppender me
+    me.stop()
+    LOG.detachAppender me
     me = null
   }
 }

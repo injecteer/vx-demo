@@ -35,11 +35,9 @@ export const EventBusProvider = ({ children }) => {
     return EventBusBridge.close
   }, [ user ] )
 
-  const setStatusCB = useCallback( setStatus, [] )
   const setNewIdsCB = useCallback( setNewIds, [] )
 
-  const val = useMemo( _ => ({ status, setStatus:setStatusCB, newIds, setNewIds:setNewIdsCB }), 
-                      [ status, setStatusCB, newIds, setNewIdsCB ] )
+  const val = useMemo( _ => ({ status, newIds, setNewIds:setNewIdsCB }), [ status, newIds, setNewIdsCB ] )
 
   return <EventBusContext.Provider value={val}>{children}</EventBusContext.Provider>
 }

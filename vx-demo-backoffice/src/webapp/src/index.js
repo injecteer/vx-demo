@@ -8,6 +8,7 @@ import './index.css'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AuthProvider, clearAuth, getAuthorization, storeAuthorization } from './auth/Authorization'
 import { EventBusProvider } from './eventBus/EventBusProvider'
+import ListParamProvider from './common/ListParamProvider'
 
 Modal.setAppElement( '#root' )
 
@@ -52,7 +53,9 @@ createRoot( document.getElementById( 'root' ) ).render( <BrowserRouter>
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
       <EventBusProvider>
-        <Main/>
+        <ListParamProvider>
+          <Main/>
+        </ListParamProvider>
       </EventBusProvider>
     </AuthProvider>
   </QueryClientProvider>

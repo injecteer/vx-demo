@@ -26,10 +26,13 @@ export default class List extends PureComponent {
   state = { list:[], count:0, offset:0, loading:true, query:{ query:'' } }
   
   componentDidMount() {
-    const { list, match } = this.props
+    const { list, match, params } = this.props
+    
     if( list )
       this.setState( { list, count:list.length, loading:false } ) 
-    else 
+    else if( params[ this.object ] )
+      this.setState( { query:params[ this.object ] }, _ => this.load() )
+    else
       this.load( match?.params?.offset ?? 0 )
   }
   
