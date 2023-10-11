@@ -30,7 +30,7 @@ export default class List extends PureComponent {
     
     if( list )
       this.setState( { list, count:list.length, loading:false } ) 
-    else if( params[ this.object ] )
+    else if( params && params[ this.object ] )
       this.setState( { query:params[ this.object ] }, _ => this.load() )
     else
       this.load( match?.params?.offset ?? 0 )
