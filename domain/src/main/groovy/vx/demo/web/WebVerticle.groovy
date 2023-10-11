@@ -46,8 +46,9 @@ class WebVerticle extends AbstractVerticle {
   @Override
   void start() throws Exception {
     config = (Map)new YamlSlurper().parse( getClass().getResourceAsStream( '/application.yml' ) )
-
-    Bootstrap.init( (Map)config )
+    traverseConfig config
+    
+    Bootstrap.init config
     
     router = Router.router vertx
     
@@ -115,5 +116,27 @@ class WebVerticle extends AbstractVerticle {
   
   protected Map<String,Handler<Promise<Status>>> healthChecks() {
     [ (getClass().simpleName):{ it.complete Status.OK() } as Handler<Promise<Status>> ]
+  }
+  
+  /**
+   * A recursive function used to traverse the passed configuration and override the settings those values are provided as environment variables.
+   *
+   * @param cfg a Map of the configuration to traverse
+   * @param env the system environment to consider while traversing the configuration
+   */
+  protected traverseConfig( Map cfg, Map env = System.getenv(), String path = '' ) {
+    cfg.each{
+      if( null == it.key || null == it.value ) return
+      String currPath = path ? "${path}_$it.key" : it.key
+      switch( it.value.getClass() ){
+        case Map:
+          traverseConfig( (Map)it.value, env, currPath )
+          break
+        case List:
+          break
+        default:
+          if( env[ currPath ] ) it.value = env[ currPath ]
+      }
+    }
   }
 }

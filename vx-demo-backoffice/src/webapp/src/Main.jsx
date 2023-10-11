@@ -28,7 +28,7 @@ export default () => {
 
   const logout = _ => {
     clearAuth()
-    nav.navigate( '/auth' )
+    nav( '/auth' )
   }
 
   return <div>
@@ -82,9 +82,12 @@ export default () => {
           <Route element={<For role="kunde"/>}>
             <Route path="logEvents" element={<LogEventsList/>} />
             <Route path="logEvent/edit/:id" element={<LogEventEdit navigate={nav}/>}/>
+          </Route>
+
+          <Route element={<For/>}>
             <Route path="/" element={<h1>Main page</h1>} /> 
           </Route>
-       
+
           <Route path="403" element={<h1>Not Authorized</h1>} />
           <Route path="*" element={<h1>Not found</h1>} />
         </Routes>
@@ -102,7 +105,7 @@ const MenuItem = ({ label, to }) => {
   return <li className={selected ? 'uk-active' : ''}><Link to={to}>{label}</Link></li>
 }
 
-const For = ({ role, ...rest }) => {
+const For = ({ role }) => {
   if( !isAuthenticated() ) return <Navigate to="/auth"/> 
   return !role || hasPermission( role ) ? <Outlet/> : <Navigate  to="/403"/> 
 }

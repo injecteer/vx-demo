@@ -19,7 +19,7 @@ import io.vertx.ext.auth.jwt.JWTAuth
 import io.vertx.ext.auth.jwt.JWTAuthOptions
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.RoutingContext
-import io.vertx.ext.web.handler.SecurityPolicyHandler
+import vx.demo.domain2.Permission
 import vx.demo.domain2.User
 import vx.demo.web.Binder
 import vx.demo.web.SecurityControllerBase
@@ -29,6 +29,8 @@ class SecurityController extends SecurityControllerBase {
 
   JWTAuth jwtAuth
   
+  final boolean registerWithAdmin = System.getProperty 'registerWithAdmin', 'false' toBoolean()
+  
   private final Binder binder = new Binder( User )
   
   @Autowired
@@ -36,6 +38,8 @@ class SecurityController extends SecurityControllerBase {
     super( cfg.security, messageSource )
 
     config.skip = '/api/pub/'
+    
+    log.info "registerWithAdmin = $registerWithAdmin"
     
     JWTAuthOptions opts = new JWTAuthOptions( pubSecKeys:[ new PubSecKeyOptions( config.pubSecKeys ) ] )
     jwtAuth = JWTAuth.create vertx, opts
@@ -50,6 +54,7 @@ class SecurityController extends SecurityControllerBase {
   void register( RoutingContext rc ) {
     Map params = params rc
     User u = new User()
+    if( registerWithAdmin ) params.permissionMask = Permission.all()
     binder.bind u, params
     u.email = u.email.toLowerCase()
     
@@ -107,6 +112,6 @@ class SecurityController extends SecurityControllerBase {
   
   @Override
   void checkJwt( String authorization, Handler<AsyncResult<User>> handler ) {
-    jwtAuth.authenticate( new TokenCredentials( authorization.substring( 7 ) ), handler )
+    jwtAuth.authenticate( new TokenCredentials( authorization?.substring( 7 ) ?: 'TOTALLY INVALID' ), handler )
   }
 }
