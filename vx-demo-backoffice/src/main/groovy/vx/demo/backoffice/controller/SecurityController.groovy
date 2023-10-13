@@ -45,7 +45,7 @@ class SecurityController extends SecurityControllerBase {
     jwtAuth = JWTAuth.create vertx, opts
 
     router.route '/*' order -100 handler this.&checkAuth
-    router.post '/pub/register' consumes JSON produces JSON handler this::register
+    router.post '/pub/register' consumes JSON produces JSON blockingHandler this::register
     router.post '/pub/login' consumes JSON produces JSON handler this::login
     router.post '/pub/forgotPassword' consumes JSON produces JSON handler this::forgotPassword
   }

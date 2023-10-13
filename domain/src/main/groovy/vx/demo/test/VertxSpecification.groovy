@@ -10,7 +10,7 @@ import spock.lang.Specification
 import spock.util.concurrent.PollingConditions
 
 /**
- * For testing only. 
+ * For testing only!!
  */
 //TODO: move it to a fixtures-project eventually
 abstract class VertxSpecification extends Specification {
@@ -28,11 +28,19 @@ abstract class VertxSpecification extends Specification {
   def setupSpec() {
     log = Logger.getLogger getClass()
     vertx = Vertx.vertx()
-    String v = getClass().name - 'Test' - 'Specification' - 'Spec'
-    log.info "deploying $v ..."
-    vertx.deployVerticle( v, deploymentOptions() as DeploymentOptions ){ verticleId = it.result() }
+    def deploys = getClass().getAnnotationsByType Deploy
+    String deployed
+    if( deploys ){
+      deploys.each{
+        vertx.deployVerticle( it.value(), deploymentOptions() as DeploymentOptions ){ verticleId = it.result() }
+      }
+      deployed = deploys*.value()*.name.join( ', ' )
+    }else{
+      deployed = getClass().name - 'Test' - 'Specification' - 'Spec'
+      vertx.deployVerticle( deployed, deploymentOptions() as DeploymentOptions ){ verticleId = it.result() }
+    }
     while( !verticleId ) Thread.sleep 500
-    log.info "$v deployed successfully"
+    log.info "$deployed deployed successfully"
   }
 
   void await( Closure c ) {

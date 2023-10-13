@@ -8,13 +8,14 @@ dependencies {
   implementation project( ':time-service' )
   implementation project( ':weather-service' )
   implementation project( ':vx-demo-backoffice' )
+  implementation project( ':password-check' )
 }
 
 task verticles {
   group 'application'
   description 'Creates a list of verticle class names based on project dependencies'
   
-  doLast{
+  doFirst{
     List projNames = configurations.implementation.dependencies.findResults{
       it.dependencyProject.plugins.hasPlugin( 'java-library' ) ? null : "$it.name-${it.version}.jar".toString()
     }

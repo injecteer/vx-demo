@@ -16,4 +16,9 @@
     <property name="basename" value="i18n.messages"/>
   </bean>
 
+  <bean id="passwordValidator" class="vx.demo.web.EventBusValidator">
+    <constructor-arg ref="vertx"/>
+    <constructor-arg value="password-check"/>
+  </bean>
+
 </beans>

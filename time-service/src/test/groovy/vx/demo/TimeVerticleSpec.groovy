@@ -1,5 +1,24 @@
 package vx.demo
 
+import static io.vertx.core.json.JsonObject.mapFrom
+import org.springframework.context.MessageSource
+import org.springframework.context.support.ResourceBundleMessageSource
+
+import groovy.transform.TypeChecked
+import io.vertx.core.AsyncResult
+import io.vertx.core.Promise
+import io.vertx.core.eventbus.Message
+import io.vertx.core.eventbus.ReplyException
+import io.vertx.ext.web.RoutingContext
+import io.vertx.ext.web.common.WebEnvironment
+import io.vertx.ext.web.handler.BodyHandler
+import io.vertx.ext.web.handler.ErrorHandler
+import io.vertx.ext.web.handler.FaviconHandler
+import io.vertx.ext.web.handler.ResponseContentTypeHandler
+import io.vertx.ext.web.handler.StaticHandler
+import vx.demo.web.Controller
+import vx.demo.web.WebVerticle
+
 import groovy.json.JsonSlurper
 import io.vertx.core.Future
 import io.vertx.core.http.HttpMethod
@@ -17,7 +36,7 @@ class TimeVerticleSpec extends VertxSpecification {
     when:
     String res
     boolean success
-    vertx.eventBus().request( 'time', timeZone ){
+    vertx.eventBus().request( 'time', mapFrom( zone:timeZone ) ){
       success = it.succeeded()
       res = it.result()?.body()
     }
@@ -33,7 +52,7 @@ class TimeVerticleSpec extends VertxSpecification {
     when: 'send bad EB request'
     String res
     boolean failure
-    vertx.eventBus().request( 'time', 'INVALID!' ){
+    vertx.eventBus().request( 'time', mapFrom( zone:'INVALID!' ) ){
       failure = it.failed()
       res = it.cause().message
     }
@@ -52,8 +71,8 @@ class TimeVerticleSpec extends VertxSpecification {
     
     when: 'send 4 good + 6 bad requests'
     def futs = []
-    4.times{ futs << vertx.eventBus().request( 'time', 'GMT' ) }
-    6.times{ futs << vertx.eventBus().request( 'time', 'INVALID' ) }
+    4.times{ futs << vertx.eventBus().request( 'time', mapFrom( zone:'GMT' ) ) }
+    6.times{ futs << vertx.eventBus().request( 'time', mapFrom( zone:'INVALID!' ) ) }
 
     and:
     Status result
@@ -75,8 +94,8 @@ class TimeVerticleSpec extends VertxSpecification {
     
     when: 'send 3 good + 1 bad requests over EB'
     def futs = []
-    3.times{ futs << vertx.eventBus().request( 'time', 'GMT' ) }
-    1.times{ futs << vertx.eventBus().request( 'time', 'INVALID' ) }
+    3.times{ futs << vertx.eventBus().request( 'time', mapFrom( zone:'GMT' ) ) }
+    1.times{ futs << vertx.eventBus().request( 'time', mapFrom( zone:'INVALID!' ) ) }
     
     and:
     Map status

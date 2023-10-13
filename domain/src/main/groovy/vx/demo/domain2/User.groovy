@@ -2,7 +2,7 @@ package vx.demo.domain2
 
 import org.grails.datastore.gorm.GormEntity
 import org.mindrot.jbcrypt.BCrypt
-
+import vx.demo.web.EventBusValidator
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
 import grails.gorm.annotation.Entity
@@ -35,6 +35,8 @@ class User implements GormEntity<User> {
   
   transient boolean forcePasswordReset = false
   
+  static EventBusValidator passwordValidator
+  
   List<String> getPermissions() {
     permissions()*.name()
   }
@@ -56,12 +58,18 @@ class User implements GormEntity<User> {
   }
   
   /**
+   * Lifecycle method to encrypt the password.
+   */
+  def beforeInsert() {
+    encodePassword()
+  }
+  
+  /**
    * Lifecycle method to update the encrypted password in case of it has been changed.
    */
-  def beforeValidate() {
-    String oldPw = getOriginalValue 'password'
-    if( oldPw && isDirty( 'password' ) && !forcePasswordReset ) throw new Exception( 'You must set forcePasswordReset=true in order to change the password!' )
-    if( !oldPw || forcePasswordReset ) encodePassword()
+  def beforeUpdate() {
+    if( isDirty( 'password' ) ) 
+      forcePasswordReset ? encodePassword() : setPassword( getPersistentValue( 'password' ) )
   }
      
   /**
@@ -71,7 +79,7 @@ class User implements GormEntity<User> {
    * @return a String containing the encrypted password
    */
   String encodePassword() {
-    password = BCrypt.hashpw password, BCrypt.gensalt()
+    setPassword BCrypt.hashpw( password, BCrypt.gensalt() )
   }
   
   static hasOne = [ address:Address ]
@@ -80,6 +88,7 @@ class User implements GormEntity<User> {
   
   static constraints = {
     name blank:false, matches:/(\p{L}+\s?)+/
+    password validator:{ passwordValidator.validate it }
     email unique:true
     permissionMask min:1
     birthDate validator:{

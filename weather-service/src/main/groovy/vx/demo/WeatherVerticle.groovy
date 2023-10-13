@@ -23,8 +23,6 @@ import vx.demo.web.WebVerticle
 @HealthCheckOnly( 8093 )
 class WeatherVerticle extends WebVerticle {
 
-  final int HEALTH = 8093
-
   final String APPID = '4667a270d3e65836b5b91ee70b628c9a'
 
   private WebClient http

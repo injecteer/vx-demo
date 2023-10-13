@@ -3,19 +3,16 @@ import { Boolean } from "../common/FormComponent"
 import List from "../common/List"
 import { FancyDate } from "../common/Misc"
 import { EventBusContext } from "../eventBus/EventBusProvider"
-import { ListParamContext } from "../common/ListParamProvider"
 
 export default () => {
   const { newIds, setNewIds } = useContext( EventBusContext )
-
-  const { params, setParams } = useContext( ListParamContext )
 
   const ref = useRef()
   useEffect( _ => { if( newIds.length ) ref.current.load() }, [ newIds ] )
   
   useEffect( _ => _ => setNewIds( [] ), [] )
 
-  return <LogEventsList hili={newIds} ref={ref} params={params} setParams={setParams}/>
+  return <LogEventsList hili={newIds} ref={ref} />
 }
 
 class LogEventsList extends List {
@@ -36,7 +33,6 @@ class LogEventsList extends List {
     }else
       query[ name ] = checked
 
-    this.props.setParams( old => ({ ...old, [this.object]:query }) )
     this.setState( { query }, this.search )
   }
 

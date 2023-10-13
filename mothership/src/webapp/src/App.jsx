@@ -152,7 +152,7 @@ export default class App extends Component {
             return <tr key={ix}>
               <td align="right">{ix + 1}.</td>
               <td>
-                <div uk-tooltip={state && `${options[ v ].worker ? 'worker, ' : ''} ${options[ v ].instances} inst`} style={state ? { color:'green', fontWeight:'bolder' } : {}}>{v}</div>
+                <div uk-tooltip={state && `${options[ v ]?.worker ? 'worker, ' : ''} ${options[ v ]?.instances ?? 1} inst`} style={state ? { color:'green', fontWeight:'bolder' } : {}}>{v}</div>
                 <div style={{ fontSize:'small', color:'#aaa' }}>{desc}</div>
               </td>
               <td>
