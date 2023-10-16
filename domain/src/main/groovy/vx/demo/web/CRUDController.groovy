@@ -37,8 +37,9 @@ abstract class CRUDController<T extends GormEntity> implements Controller {
     router.get "/$name/:id/:props" produces JSON handler this.&details
     router.get "/$name/:id/" produces JSON handler this.&details
     router.get "/$name/:id" produces JSON handler this.&details
-    router.post "/$name/:id" consumes JSON produces JSON handler this.&save
-    router.post "/$name" consumes JSON produces JSON handler this.&save
+    router.patch "/$name/:field" consumes JSON produces JSON blockingHandler this.&validateField
+    router.post "/$name/:id" consumes JSON produces JSON blockingHandler this.&save
+    router.post "/$name" consumes JSON produces JSON blockingHandler this.&save
     router.delete "/$name/:id" handler this.&delete
   }
   
@@ -68,7 +69,8 @@ abstract class CRUDController<T extends GormEntity> implements Controller {
     T o = clazz.read rc.pathParam( 'id' )
     if( o ){
       String props = rc.pathParam( 'props' )?.trim()
-      ok rc, props ? props.split( ',' ).collectEntries{ it && o.hasProperty( it ) ? [ it, o[ it ] ] : Collections.emptyMap() } : o
+      if( props ) o = props.split( ',' ).collectEntries{ it && o.hasProperty( it ) ? [ it, o[ it ] ] : Collections.emptyMap() }
+      ok rc, o
     }else
       notFound rc
   }
@@ -117,11 +119,23 @@ abstract class CRUDController<T extends GormEntity> implements Controller {
       log.info "saved $saved"
       true
     }else{
-      List errors = errors2messages o
+      Map errors = errors2messagesMap o
       log.warn "save failed for $o: $errors"
       err rc, [ errors:errors ], 400
       false
     }
+  }
+  
+  @Transactional
+  void validateField( RoutingContext rc ) {
+    def params = params rc
+    T o = clazz.newInstance()
+    bind o, params
+
+    if( o.validate( [ params.field ] ) )
+      ok rc
+    else
+      err rc, errors2messagesMap( o )[ params.field ], 400
   }
   
   private String pluralize( String single ) {

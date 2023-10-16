@@ -1,60 +1,70 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import axios from 'axios'
 import cogoToast from "cogo-toast"
-import { Text } from "../common/FormComponent"
+import { FormContext, Text } from "../common/FormComponent"
+
+const timeouts = {}
 
 export default ({ onAuthSuccess }) => {
-  
+
+  const [ validations, setValidations ] = useState( { email:null, name:null, password:null, password1:null, birthDate:null } )
+
   const [ state, setState ] = useState( { email:'', name:'', password:'', password1:'', birthDate:'' } )
   
-  const checkPasswords = _ => {
-    const { password, password1 } = state
-    if( password !== password1 ){
-      cogoToast.warn( 'Passwords do not match!' )
-      return false
-    }
-    return true
+  const validate = ( field, value ) => {
+    if( value.length ) axios.patch( `/api/pub/check/${field}`, { [field]:value } )
+         .then( _ => setValidations( old => ({ ...old, [field]:true }) ) )
+         .catch( ({ data }) => setValidations( old => ({ ...old, [field]:data.body }) ) )
   }
 
   const register = e => {
     e?.preventDefault()
 
-    const { email, name, password, birthDate } = state
-    const emptyFields = Object.entries( { email, name, password, birthDate } ).filter( ([ k, v ]) => !v.length ).map( ([ k ]) => k )
+    if( Object.values( validations ).some( v => !v || true !== v ) ) return
 
-    if( emptyFields.length ){
-      cogoToast.warn( <span>You have to fill in the fields <ul>{emptyFields.map( (f, ix) => <li key={ix}><b>{f}</b></li> )}</ul></span> )
-      return
-    } 
-    if( !checkPasswords() ) return
-    
+    const { email, name, password, birthDate } = state
+
     axios.post( '/api/pub/register', { email, name, birthDate, password } ).then( onAuthSuccess ).catch( e => {
-      console.warn( 'register failed', e )
-      cogoToast.error( <span>Registration failed with following error(s) <ul>{e?.data?.errors?.map( (f, ix) => <li key={ix}><b>{f}</b></li> )}</ul></span> )
+      if( e?.data?.errors ) setValidations( Object.keys( e.data.errors ) )
+      cogoToast.error( 'Registration failed' )
     } )
   }
 
-  const setValue = key => ({ currentTarget }) => setState( s => ({ ...s, [key]:currentTarget.value }) )
+  useEffect( _ => {
+    if( state.password1.length ) setValidations( old => ({ ...old, password1:state.password !== state.password1 ? 'Passwords do not match!' : true }) )
+  }, [ state ] )
 
-  const { email, name, birthDate, password, password1 } = state
+  const setValue = e => {
+    let { name, value } = e.currentTarget
+
+    setState( s => ({ ...s, [name]:value }) )
+    setValidations( e => ({ ...e, [name]:null }) )
+
+    if( 'password1' === name || !value.length ) return
+    
+    if( timeouts[ name ] ) clearTimeout( timeouts[ name ] )
+    timeouts[ name ] = setTimeout( _ => validate( name, value ), 1000 )
+  }
 
   return <div className="uk-container">
     <form onSubmit={register} className="uk-form-horizontal">
       
-      <fieldset className="uk-fieldset">
-        <Text label="E-mail" name="email" value={email} onChange={setValue( 'email' )}/>
+      <FormContext.Provider value={{ ...validations }}>
+        <fieldset className="uk-fieldset">
+          <Text label="E-mail" name="email" value={state.email} onChange={setValue}/>
 
-        <Text label="Name" name="name" value={name} onChange={setValue( 'name' )}/>
+          <Text label="Name" name="name" value={state.name} onChange={setValue}/>
 
-        <Text label="Birth Date" inputType="date" name="birthDate" value={birthDate} onChange={setValue( 'birthDate' )}/>
+          <Text label="Birth Date" inputType="date" name="birthDate" value={state.birthDate} onChange={setValue}/>
 
-        <Text label="Enter the PA55WORD" name="password" inputType="password" value={password} onChange={setValue( 'password' )}/>
+          <Text label="Enter the PA55WORD" name="password" inputType="password" value={state.password} onChange={setValue}/>
 
-        <Text label="Repeat the PA55WORD" name="password1" inputType="password" value={password1} onChange={setValue( 'password1' )}/>
-      </fieldset>
+          <Text label="Repeat the PA55WORD" name="password1" inputType="password" value={state.password1} onChange={setValue}/>
+        </fieldset>
+      </FormContext.Provider>
 
       <div>
-        <button type="submit" className="uk-button uk-button-primary uk-align-right">Register</button>
+        <button type="submit" className="uk-button uk-button-primary uk-align-right" disabled={Object.values( validations ).some( v => !v || true !== v )}>Register</button>
       </div>
     </form>
   </div>

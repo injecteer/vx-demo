@@ -88,7 +88,7 @@ class User implements GormEntity<User> {
   
   static constraints = {
     name blank:false, matches:/(\p{L}+\s?)+/
-    password validator:{ passwordValidator.validate it }
+    password validator:{ String pw, User u -> !u.id || u.isDirty( 'password' ) && u.forcePasswordReset ? passwordValidator.validate( pw ) : true }
     email unique:true
     permissionMask min:1
     birthDate validator:{

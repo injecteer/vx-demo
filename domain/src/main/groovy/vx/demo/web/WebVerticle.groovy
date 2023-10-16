@@ -27,7 +27,7 @@ import vx.demo.gorm.Bootstrap
 @TypeChecked
 class WebVerticle extends AbstractVerticle {
   
-  static final Set<HttpMethod> CORS_METHODS = [ GET, POST, PUT, DELETE, OPTIONS ] as Set
+  static final Set<HttpMethod> CORS_METHODS = [ GET, PATCH, POST, PUT, DELETE, OPTIONS ] as Set
   
   static final Set<String> CORS_HEADERS = [ 'Content-Type', 'Authorization', 'Access-Control-Allow-Headers', 'Access-Control-Allow-Method', 'Access-Control-Allow-Origin', 'Access-Control-Allow-Credentials' ] as Set
 

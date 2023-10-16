@@ -44,11 +44,11 @@ export const onDelete = kill => _ => {
   } )
 }
 
-export const FormButtons = ({ kill }) => {
+export const FormButtons = ({ kill, saveDisabled }) => {
   const navigate = useNavigate()
   return <div className="uk-margin-top">
     <button type="button" className="uk-button uk-button-default" onClick={_ => navigate( -1 )}>Cancel</button> 
-    <button type="submit" className="uk-button uk-button-primary uk-align-right">{kill ? 'Update' : 'Save'}</button> 
+    <button type="submit" className="uk-button uk-button-primary uk-align-right" disabled={saveDisabled}>{kill ? 'Update' : 'Save'}</button> 
     {kill && <button type="button" className="uk-button uk-button-danger uk-align-right" onClick={onDelete( kill )}>Delete</button>}
 </div>
 }

@@ -15,10 +15,12 @@ import vx.demo.domain2.User
 trait Controller {
   
   MessageSource messageSource
-  
+
+  static final String PLAINTEXT = 'text/plain'
+    
   static final String JSON = 'application/json'
   
-  Map params( RoutingContext rc ) {
+  static Map params( RoutingContext rc ) {
     Map res = [:]
     Closure setter = { k, v -> res[ k ] = v }
     rc.pathParams()?.each setter
@@ -88,9 +90,13 @@ trait Controller {
     User.get rc.user().principal().map.id
   }
   
-  List errors2messages( GormEntity o ) {
-    o.errors.fieldErrors.collect{ FieldError fe ->
-      fe.codes.findResult{ String c -> messageSource?.getMessage c, fe.arguments, null, Locale.default } ?: fe.codes.last()
+  Map<String,String> errors2messagesMap( GormEntity o ) {
+    o.errors.fieldErrors.collectEntries{ FieldError fe ->
+      [ fe.field, fe.codes.findResult{ String c -> messageSource?.getMessage c, fe.arguments, null, Locale.default } ?: fe.codes.last() ]
     }
+  }
+  
+  List<String> errors2messages( GormEntity o ) {
+    errors2messagesMap( o ).values().toList()
   }
 }

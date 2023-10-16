@@ -9,7 +9,7 @@ import vx.demo.test.VertxSpecification
 @Unroll
 class EventBusValidatorSpec extends VertxSpecification {
   
-  def 'test correct address: #input should bring #res'() {
+  def 'test correct address: [#input] should bring /#res/'() {
     given:
     EventBusValidator ebv = new EventBusValidator( vertx, 'ping' )
     

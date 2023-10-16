@@ -18,7 +18,7 @@ export default _ => {
     setUser( user )
     nav( '/', { replace:true } )
   }
-
+  
   const onAuthFail = ({ data }) => cogoToast.error( <>Login Failed - <strong>{data.message ?? data.body}</strong></> )
 
   return <div className="uk-flex uk-flex-center uk-margin-xlarge-top">

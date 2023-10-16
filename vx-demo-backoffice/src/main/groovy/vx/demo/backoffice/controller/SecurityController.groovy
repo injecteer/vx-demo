@@ -27,6 +27,8 @@ import vx.demo.web.SecurityControllerBase
 @Component
 class SecurityController extends SecurityControllerBase {
 
+  final Binder binder = new Binder( User )
+  
   JWTAuth jwtAuth
   
   final boolean registerWithAdmin = System.getProperty 'registerWithAdmin', 'false' toBoolean()
@@ -45,6 +47,7 @@ class SecurityController extends SecurityControllerBase {
     jwtAuth = JWTAuth.create vertx, opts
 
     router.route '/*' order -100 handler this.&checkAuth
+    router.patch '/pub/check/:field' consumes JSON produces JSON blockingHandler this::validateField
     router.post '/pub/register' consumes JSON produces JSON blockingHandler this::register
     router.post '/pub/login' consumes JSON produces JSON handler this::login
     router.post '/pub/forgotPassword' consumes JSON produces JSON handler this::forgotPassword
@@ -62,7 +65,7 @@ class SecurityController extends SecurityControllerBase {
       String token = addAuthHeader rc, u.id, u.permissions()
       ok rc, [ user:u, authorization:token ]
     }else{
-      List errors = errors2messages u
+      Map errors = errors2messagesMap u
       err rc, [ errors:errors ], 400
     }
   }
@@ -113,5 +116,17 @@ class SecurityController extends SecurityControllerBase {
   @Override
   void checkJwt( String authorization, Handler<AsyncResult<User>> handler ) {
     jwtAuth.authenticate( new TokenCredentials( authorization?.substring( 7 ) ?: 'TOTALLY INVALID' ), handler )
+  }
+  
+  @Transactional
+  void validateField( RoutingContext rc ) {
+    def params = params rc
+    User u = new User()
+    binder.bind u, params
+
+    if( u.validate( [ params.field ] ) )
+      ok rc
+    else
+      err rc, errors2messagesMap( u )[ params.field ], 400
   }
 }

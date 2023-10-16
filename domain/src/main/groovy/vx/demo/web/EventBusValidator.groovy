@@ -1,6 +1,7 @@
 package vx.demo.web
 
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 import groovy.util.logging.Log4j
 import io.vertx.core.Future
@@ -13,7 +14,7 @@ import io.vertx.core.eventbus.ReplyFailure
 @Log4j
 class EventBusValidator {
 
-  private static final DeliveryOptions DO = new DeliveryOptions( sendTimeout:2_000 )
+  private static final DeliveryOptions DO = new DeliveryOptions( sendTimeout:1_500 )
 
   final Vertx vertx
 
@@ -34,9 +35,11 @@ class EventBusValidator {
     
     Future<Message> fut = vertx.eventBus().request( address, o, DO ).onComplete{ countDownLatch.countDown() }
     
-    countDownLatch.await()
+    boolean done = countDownLatch.await 4, TimeUnit.SECONDS
     
-    if( fut.failed() ){
+    if( !done )
+      'service.failure'
+    else if( fut.failed() ){
       ReplyException cause = (ReplyException)fut.cause()
       ReplyFailure.RECIPIENT_FAILURE == cause?.failureType ? cause.message : 'service.failure'
     }else
