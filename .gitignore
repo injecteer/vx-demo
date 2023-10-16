@@ -22,3 +22,4 @@ src/main/resources/version.txt
 .m2
 mermaid.md
 vx-demo-backoffice/src/webapp/node_modules/
+mothership/src/main/resources/verticles.txt
