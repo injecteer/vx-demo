@@ -1,9 +1,11 @@
 package vx.demo.test
 
+import java.util.concurrent.CountDownLatch
+
 import org.apache.log4j.Logger
 
-import io.vertx.core.AbstractVerticle
 import io.vertx.core.DeploymentOptions
+import io.vertx.core.Future
 import io.vertx.core.Vertx
 import spock.lang.Shared
 import spock.lang.Specification
@@ -19,7 +21,7 @@ abstract class VertxSpecification extends Specification {
   
   @Shared Vertx vertx
   
-  @Shared String verticleId
+  @Shared List<String> verticleIds
   
   PollingConditions conditions = new PollingConditions( timeout:5 )
   
@@ -28,19 +30,25 @@ abstract class VertxSpecification extends Specification {
   def setupSpec() {
     log = Logger.getLogger getClass()
     vertx = Vertx.vertx()
+    List<Future<String>> futs
+    
     def deploys = getClass().getAnnotationsByType Deploy
-    String deployed
-    if( deploys ){
-      deploys.each{
-        vertx.deployVerticle( it.value(), deploymentOptions() as DeploymentOptions ){ verticleId = it.result() }
-      }
-      deployed = deploys*.value()*.name.join( ', ' )
-    }else{
-      deployed = getClass().name - 'Test' - 'Specification' - 'Spec'
-      vertx.deployVerticle( deployed, deploymentOptions() as DeploymentOptions ){ verticleId = it.result() }
+    if( deploys )
+      futs = deploys.collect{ vertx.deployVerticle it.value(), deploymentOptions() as DeploymentOptions }
+    else
+      futs = [ vertx.deployVerticle( getClass().name - 'Test' - 'Specification' - 'Spec', deploymentOptions() as DeploymentOptions ) ]
+    
+    CountDownLatch countDownLatch = new CountDownLatch( 1 ) 
+    Future.all futs onComplete{
+      if( it.succeeded() ){
+        verticleIds = futs*.result()
+        countDownLatch.countDown()
+      }else
+        throw it.cause()
     }
-    while( !verticleId ) Thread.sleep 500
-    log.info "$deployed deployed successfully"
+    countDownLatch.await()
+    
+    log.info "${futs.size()} deployed successfully"
   }
 
   void await( Closure c ) {
@@ -49,12 +57,11 @@ abstract class VertxSpecification extends Specification {
   }
   
   def cleanupSpec() {
-    vertx.undeploy( verticleId ){ 
+    Future.all verticleIds.collect( vertx.&undeploy ) onComplete{
       vertx.close()
-      verticleId = null 
+      verticleIds = null 
+      log.info 'context shutdown' 
     }
-    while( verticleId ) Thread.sleep 500
-    log.info 'context shutdown' 
   }
   
 }

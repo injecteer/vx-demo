@@ -32,7 +32,7 @@ class EventBusValidatorSpec extends VertxSpecification {
   }
   
   static class PingVerticle extends AbstractVerticle {
-    void start() throws Exception {
+    void start() {
       vertx.eventBus().consumer( 'ping' ){ 'ping' == it.body() ? it.reply( 'pong' ) : it.fail( 400, 'ko' ) }
     }
   }  
