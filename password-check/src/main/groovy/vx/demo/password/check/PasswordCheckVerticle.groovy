@@ -37,6 +37,7 @@ class PasswordCheckVerticle extends WebVerticle {
   
   @Transactional
   String getError( String pw ) {
+    log.info "pw << $pw"
     if( !pw ) 
       'password.blank'
     else{

@@ -20,6 +20,8 @@ export default class EventBusBridge {
       Object.entries( handlers ).forEach( ([ address, func ]) => this.eventBus?.registerHandler( address, { authorization:getAuthorization() }, func ) )
     }
     
+    this.eventBus.onerror = _ => null
+    
     this.eventBus.onclose = _ => {
       onClose()
       this.connected = false

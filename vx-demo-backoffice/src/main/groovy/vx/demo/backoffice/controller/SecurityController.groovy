@@ -59,7 +59,6 @@ class SecurityController extends SecurityControllerBase {
     User u = new User()
     if( registerWithAdmin ) params.permissionMask = Permission.all()
     binder.bind u, params
-    u.email = u.email.toLowerCase()
     
     if( u.save( flush:true ) ){
       String token = addAuthHeader rc, u.id, u.permissions()
@@ -80,7 +79,7 @@ class SecurityController extends SecurityControllerBase {
     
     if( success ){
       String authorization = addAuthHeader rc, u.id, u.permissions()
-      if( params.rememberMe ) rc.response().addCookie remembermeCookie( u )
+      if( params.rememberMe?.toBoolean() ) rc.response().addCookie remembermeCookie( u )
       ok rc, [ user:u, authorization:authorization ]
     }else
       noAuth rc, 'bad.credentials'

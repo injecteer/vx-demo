@@ -61,6 +61,7 @@ class User implements GormEntity<User> {
    * Lifecycle method to encrypt the password.
    */
   def beforeInsert() {
+    setEmail email.toLowerCase()
     encodePassword()
   }
   

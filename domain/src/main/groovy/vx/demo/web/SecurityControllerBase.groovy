@@ -20,7 +20,6 @@ import io.vertx.ext.web.RoutingContext
 import vx.demo.domain2.Permission
 import vx.demo.domain2.User
 
-@Transactional
 @TypeChecked
 abstract class SecurityControllerBase implements Controller {
   
@@ -99,7 +98,6 @@ abstract class SecurityControllerBase implements Controller {
     cookie
   }
   
-  @TypeChecked( SKIP )
   void checkCookie( RoutingContext rc ) {
     Cookie c = rc.request().getCookie config.cookieName
     if( !c?.value ){
@@ -117,22 +115,25 @@ abstract class SecurityControllerBase implements Controller {
       Map data = res.result().principal().map
       log.info "cookie = $data"
         
-      byte[] actual = data.signature.decodeBase64()
-      
-      User.withTransaction{
-        User u = User.findByEmail data.email
-        byte[] expected
-        if( u ) expected = tokenSignature( u.email, u.password ).decodeBase64()
-        if( equal( actual, expected ) ){
-          addAuthHeader rc, u.id, u.permissions()
-          rc.user = res.result()
-          rc.next()
-        }else
-          noAuth rc
-      }
+      User u = ensureUser( (String)data.email, (String)data.signature )
+      if( u ){
+        addAuthHeader rc, u.id, u.permissions()
+        rc.user = res.result()
+        rc.next()
+      }else
+        noAuth rc
     }
   }
-      
+
+  @TypeChecked( SKIP )
+  @Transactional
+  User ensureUser( String email, String signature ) {
+    User u = User.findByEmail email
+    byte[] expected
+    if( u ) expected = tokenSignature( u.email, u.password ).decodeBase64()
+    equal( signature.decodeBase64(), expected ) ? u : null
+  }
+        
   String addAuthHeader( RoutingContext rc, long id, List<Permission> permissions ) {
     String token = 'Bearer ' + generateJWT( id, permissions )
     rc.response().headers().add 'authorization', token
