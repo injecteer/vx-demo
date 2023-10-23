@@ -9,7 +9,7 @@ public class AbrechnungMgr implements AbrechnungMgrRemote {
     if (0 >= id)
       throw new AbrechnungException();
 
-    return RemoteHelper.<ObjektSO>generate(ObjektSO.class).setId(id);
+    return DummyGenerinator3000.<ObjektSO>generate(ObjektSO.class).setId(id);
   }
 
 }

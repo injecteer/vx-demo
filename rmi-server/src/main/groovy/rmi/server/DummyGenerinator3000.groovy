@@ -7,7 +7,7 @@ import org.apache.commons.lang3.RandomStringUtils
 import groovy.transform.CompileStatic
 
 @CompileStatic
-class RemoteHelper {
+class DummyGenerinator3000 {
 
   static final long YEAR_MS = 31_536_000_000 
   
