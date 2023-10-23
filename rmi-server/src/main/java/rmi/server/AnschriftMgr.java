@@ -8,7 +8,7 @@ public class AnschriftMgr implements AnschriftMgrRemote {
   public Anschrift getAnschrift(long id) throws AnschriftException {
     if (0 >= id)
       throw new AnschriftException( "Id can not be negative!" );
-    return DummyGenerinator3000.<Anschrift>generate(Anschrift.class);
+    return Dummyinator3000.<Anschrift>generate(Anschrift.class);
   }
 
   @Override

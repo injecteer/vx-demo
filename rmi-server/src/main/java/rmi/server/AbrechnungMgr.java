@@ -9,7 +9,12 @@ public class AbrechnungMgr implements AbrechnungMgrRemote {
     if (0 >= id)
       throw new AbrechnungException();
 
-    return DummyGenerinator3000.<ObjektSO>generate(ObjektSO.class).setId(id);
+    try {
+      Thread.sleep(2200);
+    } catch (InterruptedException e) {
+    }
+    
+    return Dummyinator3000.<ObjektSO>generate(ObjektSO.class).setId(id);
   }
 
 }
