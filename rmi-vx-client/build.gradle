@@ -1,0 +1,10 @@
+plugins {
+  id 'vx.demo.application-conventions'
+}
+
+dependencies {
+  implementation project( ':rmi-base' )
+  implementation "org.codehaus.groovy:groovy:$groovyVersion"
+  implementation 'org.springframework:spring-web:5.3.30'
+  implementation 'org.springframework:spring-aop:5.3.30'
+}

@@ -16,6 +16,14 @@ public class RmiServerApplication {
     exporter.setServiceInterface(AbrechnungMgrRemote.class);
     return exporter;
   }
+  
+  @Bean( name = "/anschriftMgr" )
+  HttpInvokerServiceExporter anschriftMgr() {
+    HttpInvokerServiceExporter exporter = new HttpInvokerServiceExporter();
+    exporter.setService(new AnschriftMgr());
+    exporter.setServiceInterface(AnschriftMgrRemote.class);
+    return exporter;
+  }
 
   public static void main( String[] args ) {
     SpringApplication.run( RmiServerApplication.class, args );

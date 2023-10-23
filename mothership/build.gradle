@@ -9,6 +9,7 @@ dependencies {
   implementation project( ':weather-service' )
   implementation project( ':vx-demo-backoffice' )
   implementation project( ':password-check' )
+  implementation project( ':rmi-vx-client' )
 }
 
 task verticles {
