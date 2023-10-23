@@ -15,13 +15,22 @@ task verticles {
   group 'application'
   description 'Creates a list of verticle class names based on project dependencies'
   
+  File f = file "$projectDir/src/main/resources/verticles.txt"
+  
+  inputs.files configurations.compileClasspath
+  outputs.file f
+
   doFirst{
+    if( !f.parentFile.exists() ) f.parentFile.mkdirs()
+    f.createNewFile() 
+  }
+    
+  doLast{
     List projNames = configurations.implementation.dependencies.findResults{
       it.dependencyProject.plugins.hasPlugin( 'java-library' ) ? null : "$it.name-${it.version}.jar".toString()
     }
-    List verticles = []
-    configurations.compileClasspath.each{ dep ->
-      if( dep.name !in projNames ) return
+    f.text = configurations.compileClasspath.findResults{ dep ->
+      if( dep.name !in projNames ) return null
       String name, desc
       resources.text.fromArchiveEntry( dep, 'META-INF/MANIFEST.MF' ).asReader().splitEachLine( ': ' ){ parts ->
         switch( parts[ 0 ] ){
@@ -30,15 +39,11 @@ task verticles {
           case { desc && 1 == parts.size() }: desc += parts[ 0 ].trim(); break
         }
       }
-      verticles << "$name >> $desc"
-    }
-    File f = file "$projectDir/src/main/resources/verticles.txt"
-    f.createNewFile() 
-    f.text = verticles.join( '\n' )
+      "$name >> $desc"
+    }.join '\n'
   }
 }
 
-jar.dependsOn verticles
-devJar.dependsOn verticles
+processResources.dependsOn verticles
 
 shadowJar.dependsOn processIndex

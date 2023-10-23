@@ -1,1 +1,1 @@
-include 'demo-core', 'password-check', 'domain', 'app', 'time-service', 'weather-service', 'vx-demo-backoffice', 'mothership'
+include 'demo-core', 'password-check', 'domain', 'app', 'time-service', 'weather-service', 'vx-demo-backoffice', 'mothership', 'rmi-base', 'rmi-server', 'rmi-sb-client'
