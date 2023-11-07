@@ -35,7 +35,7 @@ shadowJar {
   duplicatesStrategy = DuplicatesStrategy.EXCLUDE
   
   manifest {
-    attributes 'Main-Verticle':verticleName
+    attributes 'Main-Verticle':verticleName, 'Multi-Release':true
   }
   mergeServiceFiles {
     include 'META-INF/services/io.vertx.core.spi.VerticleFactory'

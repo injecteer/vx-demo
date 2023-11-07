@@ -5,6 +5,7 @@ import org.springframework.context.MessageSource
 import org.springframework.validation.FieldError
 
 import io.vertx.core.http.HttpServerRequest
+import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.RoutingContext
 import vx.demo.domain2.User
@@ -74,6 +75,12 @@ trait Controller {
         if( sw ) o.stackTrace = sw.toString()
         break
       case JsonObject:
+        break
+      case Collection: 
+        o = JsonObject.mapFrom( list:new JsonArray( o ) )
+        break
+      case { it.class.array }:
+        o = JsonObject.mapFrom( list:JsonArray.of( o ) )
         break
       default:
         o = JsonObject.mapFrom o

@@ -30,7 +30,7 @@ class AutoGORMASTTransformation extends AbstractASTTransformation {
       ClassNode bootstrap = (ClassNode)nodes[ 1 ]
       ClassNode listType = makeClassSafeWithGenerics List, make( String )
       bootstrap.addField 'domainClasses', ACC_PRIVATE | ACC_FINAL, listType, listX( fields )
-      println "Auto GORM: collected ${fields.size()} Entities"
+      println "Auto GORM: identified ${fields.size()} Entities"
       
     }else
       source.AST.classes.each{ if( it.getAnnotations( ENTITY_CN ) ) fields << constX( it.name ) }

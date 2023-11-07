@@ -1,3 +1,0 @@
-plugins {
-  id 'vx.demo.library-conventions'
-}

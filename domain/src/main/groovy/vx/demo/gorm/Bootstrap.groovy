@@ -32,13 +32,18 @@ class Bootstrap {
   
   private void initialize( Map config ) {
     if( initialized.get() ) return
-    
-    List<Class> classes = domainClasses.collect{ Class.forName( (String)it ) }
-    
-    new HibernateDatastore( (Map)config.gorm, classes as Class[] )
-    log.info "initialized ${classes.size()} domain classes"
-    
-    initialized.set true
+
+    try{
+      Map gorm = (Map)config.gorm
+      if( gorm ){
+        List<Class> classes = domainClasses.collect{ Class.forName( (String)it ) }
+        new HibernateDatastore( gorm, classes as Class[] )
+        log.info "initialized ${classes.size()} domain classes"
+      }else
+        log.warn "no GORM-Configuration found"
+    }finally{
+      initialized.set true
+    }    
   }
   
   List<String> getDomainPackages() {
